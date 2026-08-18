@@ -10,3 +10,24 @@
 *.nav
 *.snm
 *.vrb
+# Исполняемые файлы и бинарники
+*.exe
+*.dll
+*.obj
+*.o
+*.pdb
+*.ilk
+
+# Папки сборки MSVC
+Debug/
+Release/
+x64/
+x86/
+build/
+
+# Служебные файлы Visual Studio
+.vs/
+*.vcxproj.user
+*.ipch
+*.opensdf
+*.sdf
