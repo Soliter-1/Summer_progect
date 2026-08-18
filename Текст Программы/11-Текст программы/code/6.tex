@@ -1,0 +1,169 @@
+\section{Функция GetLoadFileNameExplorer}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Функция       : GetLoadFileNameExplorer                                *
+*------------------------------------------------------------------------*
+* Назначение    : Диалог выбора файла для открытия                       *
+* Входные       : hWnd - дескриптор окна, outPath - путь к файлу         *
+* Выходные      : bool - успех операции                                  *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Обертка над Win32 API для вызова стандартного диалога открытия файла.  *
+*************************************************************************/
+bool GetLoadFileNameExplorer(HWND hWnd, wstring& outPath) {
+    wchar_t filename[MAX_PATH] = L""; 
+    OPENFILENAMEW ofn; 
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn); 
+    ofn.hwndOwner = hWnd;
+    ofn.lpstrFilter = L"Текстовые файлы (*.txt)\0*.txt\0Все файлы (*.*)\0*.*\0";
+    ofn.lpstrFile = filename; 
+    ofn.nMaxFile = MAX_PATH;
+    ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
+    if (GetOpenFileNameW(&ofn)) { 
+        outPath = filename; 
+        return true; 
+    }
+    return false;
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Функция GetSaveFileNameExplorer}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Функция       : GetSaveFileNameExplorer                                *
+*------------------------------------------------------------------------*
+* Назначение    : Диалог выбора файла для сохранения                     *
+* Входные       : hWnd - дескриптор окна, outPath - путь к файлу         *
+* Выходные      : bool - успех операции                                  *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Обертка над Win32 API для вызова стандартного диалога сохранения файла. *
+*************************************************************************/
+bool GetSaveFileNameExplorer(HWND hWnd, wstring& outPath) {
+    wchar_t filename[MAX_PATH] = L"output.txt"; 
+    OPENFILENAMEW ofn; 
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn); 
+    ofn.hwndOwner = hWnd;
+    ofn.lpstrFilter = L"Текстовые файлы (*.txt)\0*.txt\0";
+    ofn.lpstrFile = filename; 
+    ofn.nMaxFile = MAX_PATH;
+    ofn.Flags = OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST;
+    if (GetSaveFileNameW(&ofn)) { 
+        outPath = filename; 
+        return true; 
+    }
+    return false;
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Функция ImportDataFromFile}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Функция       : ImportDataFromFile                                     *
+*------------------------------------------------------------------------*
+* Назначение    : Импорт и парсинг данных из текстового файла            *
+* Входные       : filename - путь к файлу                                *
+* Выходные      : bool - успех импорта                                   *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Читает вариант задания и формулы полей, выполняет их первичный парсинг. *
+*************************************************************************/
+bool ImportDataFromFile(const wstring& filename) {
+    ifstream file(filename);
+    if (!file.is_open()) return false;
+    string line;
+    if (getline(file, line)) { 
+        try { g_VariantNum = stoi(line); } 
+        catch (...) { return false; } 
+    }
+    if (getline(file, line)) 
+        g_FieldAStr = wstring(line.begin(), line.end());
+    if (getline(file, line)) 
+        g_FieldBStr = wstring(line.begin(), line.end());
+    file.close();
+    if (g_VariantNum <= 0 || g_FieldAStr.empty() || g_FieldBStr.empty()) 
+        return false;
+    FieldMathCalculations::ParsePolynomials(g_FieldAStr, g_FieldBStr);
+    return true;
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Функция ExportDataToFile}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Функция       : ExportDataToFile                                       *
+*------------------------------------------------------------------------*
+* Назначение    : Экспорт отчета в файл (UTF-8 с BOM)                    *
+* Входные       : filename - путь к файлу                                *
+* Выходные      : bool - успех записи                                    *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Конвертирует отчет в UTF-8 и записывает в файл с добавлением BOM-метки. *
+*************************************************************************/
+bool ExportDataToFile(const wstring& filename) {
+    wstring report = BuildReportText();
+    if (report.empty() || g_VariantNum == 0) return false;
+    int s_n = WideCharToMultiByte(CP_UTF8, 0, &report[0], 
+                                  (int)report.size(), NULL, 0, NULL, NULL);
+    string utf8_str(s_n, 0);
+    WideCharToMultiByte(CP_UTF8, 0, &report[0], (int)report.size(), 
+                        &utf8_str[0], s_n, NULL, NULL);                  
+    ofstream file(filename, ios::binary);
+    if (!file.is_open()) return false;
+    const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
+    file.write((const char*)bom, sizeof(bom)); 
+    file.write(utf8_str.c_str(), utf8_str.size()); 
+    file.close();
+    return true;
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Функция BuildInputDataText}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Функция       : BuildInputDataText                                     *
+*------------------------------------------------------------------------*
+* Назначение    : Формирование текстового блока исходных данных          *
+* Входные       : Нет                                                    *
+* Выходные      : wstring - отформатированный текст                      *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Создает текстовое представление входных данных для отображения в GUI.  *
+*************************************************************************/
+wstring BuildInputDataText() {
+    wstringstream ss;
+    ss << L"====================================================================\n";
+    ss << L"        ИСХОДНЫЕ ДАННЫЕ ВАРИАНТА\n";
+    ss << L"====================================================================\n\n";
+    ss << L"  ► Загружен вариант №:  " << g_VariantNum << L"\n\n";
+    ss << L"  ► Векторное поле ā (исследуется на поток и циркуляцию):\n";
+    ss << L"    ā = " << g_FieldAStr << L"\n\n";
+    ss << L"  ► Векторное поле b̄ (исследуется на потенциальность):\n";
+    ss << L"    b̄ = " << g_FieldBStr << L"\n\n";
+    ss << L"--------------------------------------------------------------------\n";
+    ss << L"  Всё готово! Нажмите кнопку «Расчёт данных» для получения отчета.";
+    return ss.str();
+}
+\end{listing}
+\normalsize
+
+\pagebreak

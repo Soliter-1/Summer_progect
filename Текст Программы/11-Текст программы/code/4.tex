@@ -1,0 +1,174 @@
+\section{Метод FieldMathCalculations::Calc\_Divergence}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Метод         : FieldMathCalculations::Calc_Divergence                 *
+*------------------------------------------------------------------------*
+* Назначение    : Численное вычисление дивергенции векторного поля       *
+* Входные       : field - функция поля, x, y, z - координаты точки       *
+* Выходные      : double - значение дивергенции в точке                  *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Вычисляет дивергенцию (div F) векторного поля, используя определение   *
+* через частные производные компонент: div F = dP/dx + dQ/dy + dR/dz.     *
+* *
+* АЛГОРИТМ:                                                              *
+* 1. Векторное поле раскладывается на скалярные функции P, Q, R.         *
+* 2. Для каждой компоненты вычисляется соответствующая частная           *
+* производная по своей переменной через метод Calc_PartialDerivative.    *
+* 3. Результаты суммируются для получения итогового скалярного значения. *
+*************************************************************************/
+double FieldMathCalculations::Calc_Divergence(FUNC3D_VEC field, double x, 
+                                              double y, double z) {
+    FUNC3D P = [&](double px, double py, double pz) { 
+        return field(px, py, pz).x; };
+    FUNC3D Q = [&](double px, double py, double pz) { 
+        return field(px, py, pz).y; };
+    FUNC3D R = [&](double px, double py, double pz) { 
+        return field(px, py, pz).z; };
+    return Calc_PartialDerivative(P, 1, x, y, z) + 
+           Calc_PartialDerivative(Q, 2, x, y, z) + 
+           Calc_PartialDerivative(R, 3, x, y, z);
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Метод FieldMathCalculations::Calc\_Rotor}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Метод         : FieldMathCalculations::Calc_Rotor                      *
+*------------------------------------------------------------------------*
+* Назначение    : Численное вычисление ротора (curl) векторного поля     *
+* Входные       : field - функция поля, x, y, z - координаты точки       *
+* Выходные      : Vector3D - вектор ротора в точке                       *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Вычисляет вектор ротора (rot F) по формуле векторного произведения     *
+* оператора набла на вектор поля.                                        *
+* *
+* АЛГОРИТМ:                                                              *
+* 1. Метод вычисляет шесть частных производных компонент поля.           *
+* 2. Формирует компоненты вектора ротора:                                *
+* x: dR/dy - dQ/dz; y: dP/dz - dR/dx; z: dQ/dx - dP/dy.               *
+*************************************************************************/
+Vector3D FieldMathCalculations::Calc_Rotor(FUNC3D_VEC field, double x, 
+                                           double y, double z) {
+    FUNC3D P = [&](double px, double py, double pz) { 
+        return field(px, py, pz).x; };
+    FUNC3D Q = [&](double px, double py, double pz) { 
+        return field(px, py, pz).y; };
+    FUNC3D R = [&](double px, double py, double pz) { 
+        return field(px, py, pz).z; };
+    return {
+        Calc_PartialDerivative(R, 2, x, y, z) - Calc_PartialDerivative(Q, 3, x, y, z),
+        Calc_PartialDerivative(P, 3, x, y, z) - Calc_PartialDerivative(R, 1, x, y, z),
+        Calc_PartialDerivative(Q, 1, x, y, z) - Calc_PartialDerivative(P, 2, x, y, z)
+    };
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Метод FieldMathCalculations::DetermineFieldClass}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Метод         : FieldMathCalculations::DetermineFieldClass             *
+*------------------------------------------------------------------------*
+* Назначение    : Классификация типа векторного поля                     *
+* Входные       : field - функция поля                                   *
+* Выходные      : wstring - название класса поля                         *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Определяет тип поля (потенциальное, соленоидальное, гармоническое или  *
+* общего вида) путем численной проверки свойств дивергенции и ротора.    *
+*************************************************************************/
+wstring FieldMathCalculations::DetermineFieldClass(FUNC3D_VEC field) {
+    bool is_div = true, is_rot = true;
+    for (double x = 0.2; x <= 0.8; x += 0.3) {
+        for (double y = 0.2; y <= 0.8; y += 0.3) {
+            if (abs(Calc_Divergence(field, x, y, 0.5)) > 1e-3) is_div = false;
+            Vector3D r = Calc_Rotor(field, x, y, 0.5);
+            if (abs(r.x) > 1e-3 || abs(r.y) > 1e-3 || abs(r.z) > 1e-3) 
+                is_rot = false;
+        }
+    }
+    if (is_div && is_rot) return L"Гармоническое";
+    return (is_rot ? L"Потенциальное" : 
+           (is_div ? L"Соленоидальное" : L"Общего вида"));
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Метод FieldMathCalculations::Calc\_Flux\_GaussOstrogradsky}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Метод         : FieldMathCalculations::Calc_Flux_GaussOstrogradsky     *
+*------------------------------------------------------------------------*
+* Назначение    : Расчет потока через теорему Остроградского-Гаусса      *
+* Входные       : Нет                                                    *
+* Выходные      : double - значение потока                               *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Реализует вычисление потока векторного поля через замкнутую поверхность *
+* путем сведения поверхностного интеграла к объемному по теореме Гаусса. *
+*************************************************************************/
+double FieldMathCalculations::Calc_Flux_GaussOstrogradsky() {
+    double Pc = 0.0; int st = 25;
+    double d_r = 1.0 / st, d_p = (M_PI / 2.0) / st, d_t = (M_PI / 2.0) / st;
+    for (int i = 0; i < st; ++i) {
+        for (int j = 0; j < st; ++j) {
+            for (int k = 0; k < st; ++k) {
+                double r = (i + 0.5) * d_r, p = (j + 0.5) * d_p, t = (k + 0.5) * d_t;
+                double x = r * cos(t) * cos(p), y = r * cos(t) * sin(p), z = r * sin(t);
+                Pc += Calc_Divergence(EvaluateFieldA, x, y, z) 
+	      	* (r * r * cos(t)) * d_r * d_p * d_t;
+            }
+        }
+    }
+    double P_z0 = -IntegrateQuarterDisk([](double x, double y) { 
+        return EvaluateFieldA(x, y, 0.0).z; });
+    double P_x0 = -IntegrateQuarterDisk([](double y, double z) { 
+        return EvaluateFieldA(0.0, y, z).x; });
+    double P_y0 = -IntegrateQuarterDisk([](double x, double z) { 
+        return EvaluateFieldA(x, 0.0, z).y; });
+    return Pc - (P_z0 + P_x0 + P_y0);
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Метод FieldMathCalculations::Calc\_Flux\_Direct}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Метод         : FieldMathCalculations::Calc_Flux_Direct                *
+*------------------------------------------------------------------------*
+* Назначение    : Прямое вычисление потока векторного поля              *
+* Входные       : Нет                                                    *
+* Выходные      : double - значение потока                               *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Выполняет прямое интегрирование векторного поля по поверхности сферы   *
+* в первой октанте (четверть диска).                                     *
+*************************************************************************/
+double FieldMathCalculations::Calc_Flux_Direct() {
+    return IntegrateQuarterDisk([](double x, double y) {
+        double z = sqrt(fmax(0.0, 1.0 - x * x - y * y));
+        if (z < 1e-5) return 0.0;
+        Vector3D a = EvaluateFieldA(x, y, z);
+        return (a.x * x + a.y * y + a.z * z) / z;
+    });
+}
+\end{listing}
+\normalsize
+
+\pagebreak

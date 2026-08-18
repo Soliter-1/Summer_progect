@@ -1,0 +1,167 @@
+\section{Процедура HandleCmdImportShow}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Процедура     : HandleCmdImportShow                                    *
+*------------------------------------------------------------------------*
+* Назначение    : Обработка команд импорта и отображения данных          *
+* Входные       : hWnd - дескриптор окна, wmId - идентификатор команды   *
+* Выходные      : Нет                                                    *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Обрабатывает нажатия кнопок импорта и показа данных, управляет         *
+* состоянием интерфейса и сбросом предыдущих результатов.                *
+*************************************************************************/
+void HandleCmdImportShow(HWND hWnd, int wmId) {
+    if (wmId == ID_BTN_IMPORT) { wstring f;
+        if (GetLoadFileNameExplorer(hWnd, f)) {
+            if (ImportDataFromFile(f)) {
+                g_StatusMessage = L"✔ Успех! Вариант №" + to_wstring(g_VariantNum);
+                g_ActiveView = 1; g_IsCalculated = false;
+                if (g_hPlotBitmapA) { DeleteObject(g_hPlotBitmapA); g_hPlotBitmapA = NULL;}
+                if (g_hPlotBitmapB) { DeleteObject(g_hPlotBitmapB); 
+		g_hPlotBitmapB = NULL; }
+	} else ShowError(hWnd, ErrParse);}
+}
+    else if (wmId == ID_BTN_SHOW) { if (g_VariantNum == 0) ShowError(hWnd, WarnNoData);
+        else { g_StatusMessage = L"► Исходные данные ВАР №" + to_wstring(g_VariantNum); 
+            g_ActiveView = 1; }
+    }
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Процедура HandleCmdCalcExport}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Процедура     : HandleCmdCalcExport                                    *
+*------------------------------------------------------------------------*
+* Назначение    : Обработка команд расчета и экспорта                    *
+* Входные       : hWnd - дескриптор окна, wmId - идентификатор команды   *
+* Выходные      : Нет                                                    *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Выполняет расчет параметров поля и экспорт отчета в файл.              *
+*************************************************************************/
+void HandleCmdCalcExport(HWND hWnd, int wmId) {
+    if (wmId == ID_BTN_CALC) {
+        if (g_VariantNum == 0) ShowError(hWnd, WarnNoData);
+        else { g_StatusMessage = L"✔ Расчёт выполнен!"; g_ActiveView = 2; 
+            g_IsCalculated = true;}
+    }
+    else if (wmId == ID_BTN_EXPORT) {
+        if (!g_IsCalculated) { ShowError(hWnd, WarnNoCalc); 
+            return;}
+        wstring s;
+        if (GetSaveFileNameExplorer(hWnd, s)) {
+            if (ExportDataToFile(s)) 
+                g_StatusMessage = L"✔ Отчёт сохранён!";
+            else 
+                ShowError(hWnd, ErrWrite);}
+    }
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Процедура HandleCmdVis}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Процедура     : HandleCmdVis                                           *
+*------------------------------------------------------------------------*
+* Назначение    : Обработка визуализации полей                           *
+* Входные       : hWnd - дескриптор окна, wmId - идентификатор команды   *
+* Выходные      : Нет                                                    *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Инициирует рендеринг графиков через Wolfram (с проверкой готовности),  *
+* управляет состоянием отображения и выводит ошибки при сбоях.           *
+*************************************************************************/
+void HandleCmdVis(HWND hWnd, int wmId) {
+    if (wmId == ID_BTN_VIS_A || wmId == ID_BTN_VIS_B) {
+        if (!g_IsCalculated) { ShowError(hWnd, WarnNoCalc); return; }
+        bool isA = (wmId == ID_BTN_VIS_A); 
+        HBITMAP& bmp = isA ? g_hPlotBitmapA : g_hPlotBitmapB;
+        if (!bmp) { g_StatusMessage = isA ? L"⏳ Рендеринг Поля А..." : 
+                                    L"⏳ Рендеринг Поля Б..."; g_ActiveView = 5; 
+            InvalidateRect(hWnd, NULL, TRUE); UpdateWindow(hWnd); ErrCode err;
+            if (!GenerateWolframPlot(isA, err)) {
+                g_StatusMessage = L"❌ Ошибка рендеринга!"; g_ActiveView = 2;
+                InvalidateRect(hWnd, NULL, TRUE); UpdateWindow(hWnd); ShowError(hWnd, err); 
+                return;}
+        }
+        g_StatusMessage = isA ? L"✔ Визуализация Поля А готова!" : 
+                                L"✔ Визуализация Поля Б готова!";
+        g_ActiveView = isA ? 3 : 4;}
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Процедура HandleWmCommand}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Процедура     : HandleWmCommand                                        *
+*------------------------------------------------------------------------*
+* Назначение    : Диспетчеризация команд меню и кнопок                   *
+* Входные       : hWnd - окно, wParam - параметры сообщения              *
+* Выходные      : Нет                                                    *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Центральный обработчик сообщений WM_COMMAND, распределяющий логику      *
+* в зависимости от нажатого элемента интерфейса.                         *
+*************************************************************************/
+void HandleWmCommand(HWND hWnd, WPARAM wParam) {
+    int wmId = LOWORD(wParam);
+    if (wmId == ID_BTN_IMPORT || wmId == ID_BTN_SHOW) 
+        HandleCmdImportShow(hWnd, wmId);
+    else if (wmId == ID_BTN_CALC || wmId == ID_BTN_EXPORT) 
+        HandleCmdCalcExport(hWnd, wmId);
+    else if (wmId == ID_BTN_VIS_A || wmId == ID_BTN_VIS_B) 
+        HandleCmdVis(hWnd, wmId);
+    InvalidateRect(hWnd, NULL, TRUE);
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Функция WndProc}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Функция       : WndProc                                                *
+*------------------------------------------------------------------------*
+* Назначение    : Основная процедура обработки событий окна              *
+* Входные       : hWnd, msg, wParam, lParam (стандартные Win32)          *
+* Выходные      : LRESULT - результат обработки события                  *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Главный цикл сообщений приложения, управляет жизненным циклом окна,    *
+* отрисовкой и взаимодействием с пользователем.                          *
+*************************************************************************/
+LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+    switch (msg) { case WM_CREATE: 
+        CreateInterfaceButtons(hWnd, ((LPCREATESTRUCT)lParam)->hInstance); 
+		break;
+    case WM_COMMAND:  HandleWmCommand(hWnd, wParam); 
+		break;
+    case WM_PAINT: HandlePaint(hWnd); 
+		break;
+    case WM_DESTROY: if (g_hPlotBitmapA) DeleteObject(g_hPlotBitmapA);
+        if (g_hPlotBitmapB) DeleteObject(g_hPlotBitmapB); PostQuitMessage(0); 
+		break;
+    default:  return DefWindowProc(hWnd, msg, wParam, lParam);}
+    return 0;
+}
+\end{listing}
+\normalsize
+
+\pagebreak

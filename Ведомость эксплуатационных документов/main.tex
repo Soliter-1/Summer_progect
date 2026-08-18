@@ -1,0 +1,295 @@
+\documentclass[14pt,a4paper,final]{extreport}
+\nonstopmode
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\DeclareUnicodeCharacter{0306}{~}
+\usepackage[russian]{babel}
+\usepackage[a4paper, top=2cm, bottom=2cm, left=2cm, right=1cm,marginparsep=.5cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage[export]{adjustbox}
+\usepackage{marginnote}
+\usepackage{tabularray}
+\usepackage{longtable}
+\usepackage{ltablex}
+
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=\parindent,nosep}
+\setlist[enumerate]{leftmargin=\parindent,nosep}
+\renewcommand\labelitemi{--}
+
+\usepackage[none]{hyphenat}
+\usepackage{setspace}
+\onehalfspacing 
+\usepackage{float}
+\usepackage{xpatch}
+
+\usepackage{tocloft, titlesec, titletoc}
+\usepackage{indentfirst}
+\titleformat{\chapter}[block]{\normalfont\bfseries\large}{\thechapter}{1ex}{\centering\MakeUppercase}
+\titlespacing*{\chapter}{0pt}{-\baselineskip}{2\baselineskip}
+
+\usepackage[hidelinks]{hyperref}
+
+\titleformat{\section}[block]{\normalfont}{\thesection}{1ex}{\normalfont}
+\titlespacing{\section}{1.25cm}{\baselineskip}{\baselineskip}
+
+%Оформление подразделов
+\titleformat{\subsection}[block]{\normalfont}{\thesubsection}{1ex}{\normalfont}
+\titlespacing{\subsection}{1.25cm}{\baselineskip}{\baselineskip}
+
+%Оформление под-подразделов
+\titleformat{\subsubsection}[block]{\normalfont}{\thesubsection}{1ex}{\normalfont}
+\titlespacing{\subsubsection}{1.25cm}{0pt}{\baselineskip}
+
+\usepackage{titlesec}
+
+% Настройка глубины нумерации заголовков
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+% Настройка внешнего вида заголовков с помощью titlesec
+\titleformat{\subsubsection}[hang]{\normalfont\normalsize}{\thesubsubsection}{0.5em}{}
+
+%\titlespacing{\subsubsection}{35pt}{\parskip}{\parskip}
+
+%\setcounter{tocdepth}{4}%
+%\setcounter{secnumdepth}{4}% Number \subsubsection
+\renewcommand{\cftdotsep}{2.75}
+\renewcommand{\cftchapfont}{\normalfont}
+\renewcommand{\cfttoctitlefont}{\hfill\normalfont\large\bfseries}
+\renewcommand{\cftaftertoctitle}{\hfill}
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}} % for chapters
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}  % for sections
+\renewcommand{\cftsubsecleader}{\cftdotfill{\cftdotsep}} % for subsections
+\renewcommand{\cftsubsubsecleader}{\cftdotfill{\cftdotsep}} % for subsubsections
+\setlength{\cftbeforetoctitleskip}{-.6\baselineskip}
+\setlength{\cftaftertoctitleskip}{-\baselineskip}
+\setlength{\cftbeforechapskip}{\baselineskip}
+\renewcommand{\cftchappagefont}{}
+
+\renewcommand{\contentsname}{СОДЕРЖАНИЕ\vspace{\baselineskip}}% (ГОСТ Р 7.0.11-2011, 4)
+\addto{\captionsrussian}{\renewcommand{\bibname}{СПИСОК ИСПОЛЬЗОВАННОЙ ЛИТЕРАТУРЫ\bigskip}}
+
+\makeatletter
+\renewcommand\@biblabel[1]{#1.\ }
+\makeatother
+
+\let\mtcontentsname\contentsname\addto\captionsrussian{\typeout{foo}\renewcommand{\contentsname}{\MakeUppercase\mtcontentsname}}
+
+\makeatletter
+\patchcmd{\chapter}{\if@openright\cleardoublepage\else\clearpage\fi}{\vspace{3\baselineskip}}{}{}
+\makeatother
+
+\newcommand*\rot[1]{\rotatebox{90}{#1}}
+\newlength{\rs}
+\setlength{\rs}{.5mm}
+
+\makeatletter
+\AddEnumerateCounter{\asbuk}{\russian@alph}{щ}
+\makeatother
+
+\fancypagestyle{firststyle}
+{
+	\fancyhf{} % sets both header and footer to nothing
+	\renewcommand{\headrulewidth}{0pt}
+	\fancyfoot[C]{
+		
+		{\vspace{-\baselineskip}\normalfont\textbf{Москва 2026}}
+	} 
+}
+
+\begin{document}
+	\pagenumbering{gobble}
+	\raggedbottom
+	
+	%для изменения
+	\newcommand{\fullname}{Нагороднюк Алиса Дмитриевна}
+	\newcommand{\shname}{Нагороднюк А. Д.}
+	\newcommand{\grp}{М3О-225БВ-24.}
+	\newcommand{\variant}{9} %номер варианта (если многозначный - уберите 0 в \cipher)
+	\newcommand{\fieldA}{\( \vec a = z^3 \vec i + x^3 \vec j + y^3 \vec k \)}
+	\newcommand{\fieldB}{\( \vec b = (y^3z^4 + 2xy) \vec i + (3xy^2z^4 + x^2) \vec j + (4xy^3z^3 + 2z) \vec k \)}
+	
+	\newcommand{\cipher}{643.02066606.0000\variant}
+	\newcommand{\cipherlri}{643.02066606.\\0000\variant}
+	\newcommand{\docstamp}{\cipher-01 20 01}
+	\newcommand{\doctitle}{Программа визуализации\\эквипотенциальных поверхностей\\и силовых линий}
+	\newcommand{\doctitleoneline}{Программа визуализации эквипотенциальных поверхностей и силовых линий}
+	\newcommand{\programtitle}{VectorField}
+	\newcommand{\docname}{Ведомость эксплуатационных документов}
+	\input{lu.tex}
+	\pagebreak
+	
+	\input{title.tex}
+	\pagebreak
+	
+	\parindent=1.25cm
+	\sloppy
+	
+	\pagenumbering{arabic}
+	\setcounter{page}{2}
+	
+	\pagestyle{fancy}
+	
+	\fancypagestyle{plain}
+	
+	\fancyhf{} % clear all header and footer fields
+	
+	\fancyhead[C]{\bfseries\thepage\\\docstamp}
+	
+	\renewcommand{\headrulewidth}{0pt}
+	\pagebreak
+	
+	\tableofcontents
+	
+	\pagebreak
+	
+	\chapter{Основная часть}
+	
+	\begin{center}
+		\begin{longtable}{|c|c|c|c|}
+			
+			\hline
+			\textbf{Обозначение} & \textbf{Наименование} & \textbf{Кол.	Экз.} & \textbf{Мест-e} \\
+			\hline
+			\endfirsthead
+			\hline
+			\textbf{Обозначение} & \textbf{Наименование} & \textbf{Кол.	Экз.} & \textbf{Мест-e} \\
+			\hline
+			\endhead
+			
+			\endfoot
+			\hline
+			\endlastfoot
+			& Документы на программу	& & 	\\ \hline
+			& & & \\ \hline
+			
+			\cipher-01 30 01& Программа визуализации && \\ \hline
+			&эквипотенциальных && \\ \hline
+			&поверхностей и && \\ \hline
+			&силовых линий&& \\ \hline
+			&Формуляр &1 & \\ \hline 				
+			
+			
+			& & & \\ \hline
+			\cipher-01 31 01& Программа визуализации && \\ \hline
+			&эквипотенциальных && \\ \hline
+			&поверхностей и && \\ \hline
+			&силовых линий&& \\ \hline
+			&Описание применения  & 1& \\ \hline	
+			
+			
+			& & & \\ \hline
+			\cipher-01 32 01& Программа визуализации && \\ \hline
+			&эквипотенциальных && \\ \hline
+			&поверхностей и && \\ \hline
+			&силовых линий&& \\ \hline
+			&Руководство системного   &&\\ \hline
+			&программиста  & 1& \\ \hline	
+			
+			
+			& & & \\ \hline
+			\cipher-01 33 01& Программа визуализации && \\ \hline
+			&эквипотенциальных && \\ \hline
+			&поверхностей и && \\ \hline
+			&силовых линий&& \\ \hline
+			&Руководство программиста & 1 &\\ 	\hline	
+			
+			
+			& & & \\ \hline
+			& & & \\ \hline
+			& & & \\ \hline
+		\end{longtable}
+	\end{center}
+
+	\begin{center}
+	\begin{longtable}{|c|c|c|c|}
+		
+		\hline
+		\textbf{Обозначение} & \textbf{Наименование} & \textbf{Кол.	Экз.} & \textbf{Мест-e} \\
+		\hline
+		\endfirsthead
+		\hline
+		\textbf{Обозначение} & \textbf{Наименование} & \textbf{Кол.	Экз.} & \textbf{Мест-e} \\
+		\hline
+		\endhead
+		
+		\endfoot
+		\hline
+		\endlastfoot
+			
+			& & & \\ \hline			
+			\cipher-01 34 01& Программа визуализации && \\ \hline
+			&эквипотенциальных && \\ \hline
+			&поверхностей и && \\ \hline
+			&силовых линий&& \\ \hline
+			&Руководство оператора & 1 & \\ 	\hline	
+			
+			
+			
+		\end{longtable}
+	\end{center}
+	
+	
+	
+	\pagebreak
+	
+	\label{lastpage}
+	
+	\addcontentsline{toc}{chapter}{Лист регистрации изменений}
+	\renewcommand{\headrulewidth}{0pt}
+	\fontsize{3.5mm}{3mm}\selectfont
+	\noindent\begin{tblr}{colspec={|[\rs]p{8mm,c}|X[20,c]|X[20,c]|X[20,c]|X[20,c]|X[20,c]|X[25,c]|X[25,c]|X[15,c]|X[12,c]|[2pt]},
+			rows   = {5mm},
+			row{1} = {10mm,m},
+			row{2} = {5mm,m},
+			row{3} = {20mm,m},
+			rowsep = 0pt,colsep = 0pt,
+			vline{2-10} = {2-3}{\rs}
+		}\hline[\rs]
+		\SetCell[c=10]{c} {\fontsize{7mm}{0mm}\selectfont Лист регистрации изменений} &&&&&&&&&&& \\\hline[\rs]
+		\SetCell[c=5]{c} {\small Номера листов (страниц)} &&&&& \SetCell[r=2]{c} Всего листов (страниц) в документе & \SetCell[r=2]{c} № документа & \SetCell[r=2]{c} {Входящий № сопроводи-\\тельного  документа и дата} & \SetCell[r=2]{c} Подп. & \SetCell[r=2]{c} Дата \\\hline[\rs]
+		Изм & {Изменен-\\ных} & {Заменен-\\ных} & Новых & {Анулиро-\\ванных} &&&&& \\\hline[\rs]
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline
+		&&&&&&&&&&& \\ \hline[\rs]
+	\end{tblr}
+	
+\end{document}

@@ -1,0 +1,234 @@
+{
+  "project": "FieldMathCalculations",
+  "standard": "ГОСТ 19.701-90",
+  "description": "Схема основного алгоритма работы программы расчета параметров векторных полей",
+  "flowchart": {
+    "nodes": [
+      {
+        "id": "start",
+        "type": "terminator",
+        "label": "Начало (WinMain)",
+        "comment": "Запуск приложения, инициализация интерфейса"
+      },
+      {
+        "id": "init_window",
+        "type": "process",
+        "label": "Инициализация и регистрация класса окна WNDCLASSEXW, создание главного окна (HWND)"
+      },
+      {
+        "id": "msg_loop",
+        "type": "decision",
+        "label": "Получено сообщение WM_QUIT?",
+        "yes": "exit_prog",
+        "no": "handle_msg"
+      },
+      {
+        "id": "handle_msg",
+        "type": "process",
+        "label": "Вызов DispatchMessage (передача в WndProc)"
+      },
+      {
+        "id": "wndproc_branch",
+        "type": "decision",
+        "label": "Определение типа события msg",
+        "branches": [
+          { "cond": "WM_CREATE", "target": "create_buttons" },
+          { "cond": "WM_COMMAND", "target": "wm_command_handler" },
+          { "cond": "WM_PAINT", "target": "paint_handler" },
+          { "cond": "WM_DESTROY", "target": "destroy_handler" }
+        ]
+      },
+      {
+        "id": "create_buttons",
+        "type": "process",
+        "label": "Вызов CreateInterfaceButtons(): Создание кнопок управления (Импорт, Расчет, Визуализация, Экспорт)"
+      },
+      {
+        "id": "wm_command_handler",
+        "type": "decision",
+        "label": "Идентификатор кнопки (wmId)",
+        "branches": [
+          { "cond": "ID_BTN_IMPORT", "target": "import_flow" },
+          { "cond": "ID_BTN_CALC", "target": "calc_flow" },
+          { "cond": "ID_BTN_VIS_A / B", "target": "vis_flow" },
+          { "cond": "ID_BTN_EXPORT", "target": "export_flow" }
+        ]
+      },
+      {
+        "id": "import_flow",
+        "type": "predefined_process",
+        "label": "Вызов GetLoadFileNameExplorer() и ImportDataFromFile()",
+        "comment": "Чтение файла .txt, выделение номера варианта и парсинг полиномов полей a и b"
+      },
+      {
+        "id": "parse_check",
+        "type": "decision",
+        "label": "Импорт успешен?",
+        "yes": "set_status_ok",
+        "no": "show_err_parse"
+      },
+      {
+        "id": "show_err_parse",
+        "type": "predefined_process",
+        "label": "Вызов ShowError(ErrParse): вывод сообщения об ошибке формата"
+      },
+      {
+        "id": "set_status_ok",
+        "type": "process",
+        "label": "g_ActiveView = 1, g_IsCalculated = false, сброс старых HBITMAP"
+      },
+      {
+        "id": "calc_flow",
+        "type": "decision",
+        "label": "Данные загружены (g_VariantNum > 0)?",
+        "yes": "run_math_calculations",
+        "no": "show_err_nodata"
+      },
+      {
+        "id": "show_err_nodata",
+        "type": "predefined_process",
+        "label": "Вызов ShowError(WarnNoData): требуется загрузить данные"
+      },
+      {
+        "id": "run_math_calculations",
+        "type": "process",
+        "label": "Вычисление дивергенции, ротора, класса поля a;\nИнтегрирование потока (Гаусс vs Прямой);\nРасчет циркуляции (Стокс vs Прямой);\nНахождение потенциала U(x,y,z) поля b и проверка его градиента"
+      },
+      {
+        "id": "set_calc_ok",
+        "type": "process",
+        "label": "g_ActiveView = 2 (Экран отчета), g_IsCalculated = true"
+      },
+      {
+        "id": "vis_flow",
+        "type": "decision",
+        "label": "Выполнен ли предварительный расчет (g_IsCalculated)?",
+        "yes": "check_existing_bmp",
+        "no": "show_err_nocalc"
+      },
+      {
+        "id": "show_err_nocalc",
+        "type": "predefined_process",
+        "label": "Вызов ShowError(WarnNoCalc): требуется провести расчеты"
+      },
+      {
+        "id": "check_existing_bmp",
+        "type": "decision",
+        "label": "Изображение поля уже отрендерено в кэше (HBITMAP)?",
+        "yes": "set_vis_view",
+        "no": "generate_wolfram_plot"
+      },
+      {
+        "id": "generate_wolfram_plot",
+        "type": "predefined_process",
+        "label": "Вызов GenerateWolframPlot():\n1. Запись скрипта .wl с функцией StreamPlot3D\n2. Запуск процесса wolframscript.exe\n3. Загрузка результирующего .bmp через LoadImageW"
+      },
+      {
+        "id": "wolfram_check",
+        "type": "decision",
+        "label": "Рендеринг и загрузка BMP успешны?",
+        "yes": "set_vis_view",
+        "no": "show_err_wolfram"
+      },
+      {
+        "id": "show_err_wolfram",
+        "type": "predefined_process",
+        "label": "Вызов ShowError(ErrWl...): вывод ошибки визуализации"
+      },
+      {
+        "id": "set_vis_view",
+        "type": "process",
+        "label": "g_ActiveView = 3 (Поле А) или 4 (Поле Б) для вывода на WM_PAINT"
+      },
+      {
+        "id": "export_flow",
+        "type": "decision",
+        "label": "Выполнен расчет?",
+        "yes": "get_save_filename",
+        "no": "show_err_nocalc"
+      },
+      {
+        "id": "get_save_filename",
+        "type": "predefined_process",
+        "label": "Вызов GetSaveFileNameExplorer() и ExportDataToFile()"
+      },
+      {
+        "id": "export_check",
+        "type": "decision",
+        "label": "Запись отчета в кодировке UTF-8 с BOM успешна?",
+        "yes": "set_export_status",
+        "no": "show_err_write"
+      },
+      {
+        "id": "show_err_write",
+        "type": "predefined_process",
+        "label": "Вызов ShowError(ErrWrite): ошибка записи"
+      },
+      {
+        "id": "set_export_status",
+        "type": "process",
+        "label": "Обновление строки состояния: «Отчёт сохранён!»"
+      },
+      {
+        "id": "paint_handler",
+        "type": "predefined_process",
+        "label": "Вызов HandlePaint(): отрисовка фона, статус-бара, карточки данных/отчетов/изображения по значению g_ActiveView"
+      },
+      {
+        "id": "destroy_handler",
+        "type": "process",
+        "label": "Освобождение g_hPlotBitmapA/B, вызов PostQuitMessage(0)"
+      },
+      {
+        "id": "exit_prog",
+        "type": "terminator",
+        "label": "Конец работы программы"
+      }
+    ],
+    "connections": [
+      { "from": "start", "to": "init_window" },
+      { "from": "init_window", "to": "msg_loop" },
+      { "from": "msg_loop", "branch": "no", "to": "handle_msg" },
+      { "from": "msg_loop", "branch": "yes", "to": "exit_prog" },
+      { "from": "handle_msg", "to": "wndproc_branch" },
+      { "from": "wndproc_branch", "branch": "WM_CREATE", "to": "create_buttons" },
+      { "from": "wndproc_branch", "branch": "WM_COMMAND", "to": "wm_command_handler" },
+      { "from": "wndproc_branch", "branch": "WM_PAINT", "to": "paint_handler" },
+      { "from": "wndproc_branch", "branch": "WM_DESTROY", "to": "destroy_handler" },
+      { "from": "create_buttons", "to": "msg_loop" },
+      { "from": "paint_handler", "to": "msg_loop" },
+      { "from": "destroy_handler", "to": "msg_loop" },
+      { "from": "wm_command_handler", "branch": "ID_BTN_IMPORT", "to": "import_flow" },
+      { "from": "wm_command_handler", "branch": "ID_BTN_CALC", "to": "calc_flow" },
+      { "from": "wm_command_handler", "branch": "ID_BTN_VIS_A / B", "to": "vis_flow" },
+      { "from": "wm_command_handler", "branch": "ID_BTN_EXPORT", "to": "export_flow" },
+      { "from": "import_flow", "to": "parse_check" },
+      { "from": "parse_check", "branch": "yes", "to": "set_status_ok" },
+      { "from": "parse_check", "branch": "no", "to": "show_err_parse" },
+      { "from": "show_err_parse", "to": "msg_loop" },
+      { "from": "set_status_ok", "to": "msg_loop" },
+      { "from": "calc_flow", "branch": "yes", "to": "run_math_calculations" },
+      { "from": "calc_flow", "branch": "no", "to": "show_err_nodata" },
+      { "from": "show_err_nodata", "to": "msg_loop" },
+      { "from": "run_math_calculations", "to": "set_calc_ok" },
+      { "from": "set_calc_ok", "to": "msg_loop" },
+      { "from": "vis_flow", "branch": "yes", "to": "check_existing_bmp" },
+      { "from": "vis_flow", "branch": "no", "to": "show_err_nocalc" },
+      { "from": "show_err_nocalc", "to": "msg_loop" },
+      { "from": "check_existing_bmp", "branch": "yes", "to": "set_vis_view" },
+      { "from": "check_existing_bmp", "branch": "no", "to": "generate_wolfram_plot" },
+      { "from": "generate_wolfram_plot", "to": "wolfram_check" },
+      { "from": "wolfram_check", "branch": "yes", "to": "set_vis_view" },
+      { "from": "wolfram_check", "branch": "no", "to": "show_err_wolfram" },
+      { "from": "show_err_wolfram", "to": "msg_loop" },
+      { "from": "set_vis_view", "to": "msg_loop" },
+      { "from": "export_flow", "branch": "yes", "to": "get_save_filename" },
+      { "from": "export_flow", "branch": "no", "to": "show_err_nocalc" },
+      { "from": "get_save_filename", "to": "export_check" },
+      { "from": "export_check", "branch": "yes", "to": "set_export_status" },
+      { "from": "export_check", "branch": "no", "to": "show_err_write" },
+      { "from": "show_err_write", "to": "msg_loop" },
+      { "from": "set_export_status", "to": "msg_loop" }
+    ]
+  }
+}

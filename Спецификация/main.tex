@@ -1,0 +1,369 @@
+\documentclass[14pt,a4paper,final]{extreport}
+\nonstopmode
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage[a4paper, top=2cm, bottom=2cm, left=2cm, right=1cm,marginparsep=.5cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage[export]{adjustbox}
+\usepackage{marginnote}
+\usepackage{tabularray}
+
+\DeclareUnicodeCharacter{0306}{{\u \i}}
+
+
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=\parindent,nosep}
+\setlist[enumerate]{leftmargin=\parindent,nosep}
+\renewcommand\labelitemi{--}
+
+\usepackage[none]{hyphenat}
+\usepackage{setspace}
+\onehalfspacing 
+\usepackage{float}
+\usepackage{xpatch}
+
+\usepackage{tocloft, titlesec, titletoc}
+\usepackage{indentfirst}
+\titleformat{\chapter}[block]{\normalfont\bfseries\large}{\thechapter}{1ex}{\centering\MakeUppercase}
+\titlespacing*{\chapter}{0pt}{-\baselineskip}{2\baselineskip}
+
+\titleformat{\section}[block]{\normalfont}{\thesection}{1ex}{\normalfont}
+\titlespacing{\section}{1.25cm}{\baselineskip}{\baselineskip}
+
+%Оформление подразделов
+\titleformat{\subsection}[block]{\normalfont}{\thesubsection}{1ex}{\normalfont}
+\titlespacing{\subsection}{1.25cm}{\baselineskip}{\baselineskip}
+
+%Оформление под-подразделов
+\titleformat{\subsubsection}[block]{\normalfont}{\thesubsection}{1ex}{\normalfont}
+\titlespacing{\subsubsection}{1.25cm}{0pt}{\baselineskip}
+
+\usepackage{titlesec}
+
+% Настройка глубины нумерации заголовков
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+% Настройка внешнего вида заголовков с помощью titlesec
+\titleformat{\subsubsection}[hang]{\normalfont\normalsize}{\thesubsubsection}{0.5em}{}
+
+%\titlespacing{\subsubsection}{35pt}{\parskip}{\parskip}
+
+\renewcommand{\cftdotsep}{2.75}
+\renewcommand{\cftchapfont}{\normalfont}
+\renewcommand{\cfttoctitlefont}{\hfill\normalfont\large\bfseries}
+\renewcommand{\cftaftertoctitle}{\hfill}
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}} % for chapters
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}  % for sections
+\renewcommand{\cftsubsecleader}{\cftdotfill{\cftdotsep}} % for subsections
+\renewcommand{\cftsubsubsecleader}{\cftdotfill{\cftdotsep}} % for subsubsections
+\setlength{\cftbeforetoctitleskip}{-.6\baselineskip}
+\setlength{\cftaftertoctitleskip}{-\baselineskip}
+\setlength{\cftbeforechapskip}{\baselineskip}
+\renewcommand{\cftchappagefont}{}
+
+\makeatletter
+\renewcommand\@biblabel[1]{#1.\ }
+\makeatother
+
+\let\mtcontentsname\contentsname\addto\captionsrussian{\typeout{foo}\renewcommand{\contentsname}{\MakeUppercase\mtcontentsname}}
+
+\makeatletter
+\patchcmd{\chapter}{\if@openright\cleardoublepage\else\clearpage\fi}{\vspace{3\baselineskip}}{}{}
+\makeatother
+
+\newcommand*\rot[1]{\rotatebox{90}{#1}}
+\newlength{\rs}
+\setlength{\rs}{.5mm}
+
+\makeatletter
+\AddEnumerateCounter{\asbuk}{\russian@alph}{щ}
+\makeatother
+
+\fancypagestyle{firststyle}
+{
+    \fancyhf{} % sets both header and footer to nothing
+    \renewcommand{\headrulewidth}{0pt}
+    \fancyfoot[C]{
+    
+        {\vspace{-\baselineskip}\normalfont\textbf{Москва 2026}}
+    } 
+}
+
+\begin{document}
+\pagenumbering{gobble}
+\raggedbottom
+
+%для изменения
+\newcommand{\fullname}{Нагороднюк Алиса Дмитриевна}
+\newcommand{\shname}{Нагороднюк А. Д.}
+\newcommand{\grp}{М3О-225БВ-24}
+\newcommand{\variant}{9} %номер варианта (если многозначный - уберите 0 в \cipher)
+
+\newcommand{\cipher}{643.02066606.0000\variant}
+\newcommand{\cipherlri}{643.02066606.\\0000\variant}
+\newcommand{\docstamp}{\cipher-01 01 01}
+\newcommand{\doctitle}{Программа визуализации\\эквипотенциальных поверхностей\\и силовых линий}
+\newcommand{\docname}{Спецификация}
+\input{lu.tex}
+\pagebreak
+
+\input{title.tex}
+\pagebreak
+
+\parindent=1.25cm
+\sloppy
+
+\pagenumbering{arabic}
+\setcounter{page}{2}
+
+\pagestyle{fancy}
+
+\fancypagestyle{plain}
+
+\fancyhf{} % clear all header and footer fields
+
+\fancyhead[C]{\bfseries\thepage\\\docstamp}
+
+\renewcommand{\headrulewidth}{0pt}
+\pagebreak
+
+\renewcommand{\headrulewidth}{0pt}
+\fontsize{3.5mm}{3mm}\selectfont
+\noindent\begin{tblr}{
+  colspec = {|X[20,c]|X[20,c]|X[20,c]|},
+  rows = {5mm},
+  row{1} = {10mm,m},
+  rowsep = 0pt, colsep = 0pt,
+  vline{1-4} = {\rs}, hline{1,2} = {\rs}
+}
+  \SetCell[c=1]{c} \small Обозначение & \SetCell[c=1]{c} \small Наименование & \SetCell[c=1]{c} \small Примечание \\ 
+  && \\ \hline
+  & Документация & \\ \hline
+  && \\ \hline
+  \cipher-01 01 01 & Программа визуализации & \\ \hline
+  & эквипотенциальных поверхностей и  & \\ \hline
+  & силовых линий & \\ \hline
+  & Спецификация & \\ \hline
+  && \\ \hline
+  \cipher-01 01 01-ЛУ & Программа визуализации & \\ \hline
+  & эквипотенциальных поверхностей и  & \\ \hline
+  & силовых линий & \\ \hline
+  & Спецификация & \\ \hline
+  & Лист утверждения & \\ \hline
+  && \\ \hline
+  \cipher-01 12 01 & Программа визуализации \\ \hline
+  & эквипотенциальных поверхностей и & \\ \hline
+  &  силовых линий & \\ \hline
+  & Текст программы& \\ \hline
+  && \\ \hline
+  \cipher-01 12 01-ЛУ& Программа визуализации  \\ \hline
+  & эквипотенциальных поверхностей и  \\ \hline
+  & силовых линий \\ \hline
+  & Текст программы & \\ \hline
+  & Лист утверждения & \\ \hline
+  && \\ \hline
+  \cipher-01 13 01 & Программа визуализации \\ \hline
+  & эквипотенциальных поверхностей и & \\ \hline
+  &  силовых линий & \\ \hline
+  & Описание программы & \\ \hline
+  && \\ \hline
+  \cipher-01 13 01-ЛУ& Программа визуализации  \\ \hline
+  & эквипотенциальных поверхностей и  \\ \hline
+  & силовых линий \\ \hline
+  & Описание программы & \\ \hline
+  & Лист утверждения & \\ \hline
+  && \\ \hline 
+  \cipher-01 51 01 & Программа визуализации \\ \hline
+  & эквипотенциальных поверхностей и & \\ \hline
+  &  силовых линий & \\ \hline
+  & Программа и методика испытаний & \\ \hline
+  && \\ \hline
+  \cipher-01 51 01-ЛУ& Программа визуализации  \\ \hline
+  & эквипотенциальных поверхностей и  \\ \hline
+  & силовых линий \\ \hline
+  & Программа и методика испытаний & \\ \hline
+  & Лист утверждения & \\ \hline
+  && \\ \hline
+  && \\ \hline [\rs]
+  \end{tblr}
+  
+  \pagebreak
+  
+  \noindent\begin{tblr}{
+  colspec = {|X[20,c]|X[20,c]|X[20,c]|},
+  rows = {5mm},
+  row{1} = {10mm,m},
+  rowsep = 0pt, colsep = 0pt,
+  vline{1-4} = {\rs}, hline{1,2} = {\rs}
+}
+  \SetCell[c=1]{c} \small Обозначение & \SetCell[c=1]{c} \small Наименование & \SetCell[c=1]{c} \small Примечание \\ 
+  && \\ \hline
+    \cipher-01 81 01 & Программа визуализации \\ \hline
+  & эквипотенциальных поверхностей и & \\ \hline
+  &  силовых линий & \\ \hline
+  & Пояснительная записка & \\ \hline
+  && \\ \hline
+  \cipher-01 81 01-ЛУ& Программа визуализации  \\ \hline
+  & эквипотенциальных поверхностей и  \\ \hline
+  & силовых линий \\ \hline
+  & Пояснительная записка & \\ \hline
+  & Лист утверждения & \\ \hline
+  && \\ \hline
+  \cipher-01 20 01 & Программа визуализации \\ \hline
+  & эквипотенциальных поверхностей и & \\ \hline
+  &  силовых линий & \\ \hline
+  & Ведомость эксплуатационных документов & \\ \hline
+  && \\ \hline
+  \cipher-01 20 01-ЛУ& Программа визуализации  \\ \hline
+  & эквипотенциальных поверхностей и  \\ \hline
+  & силовых линий \\ \hline
+  & Ведомость эксплуатационных документов & \\ \hline
+  & Лист утверждения & \\ \hline
+  && \\ \hline
+  \cipher-01 30 01 & Программа визуализации \\ \hline
+  & эквипотенциальных поверхностей и & \\ \hline
+  &  силовых линий & \\ \hline
+  & Формуляр & \\ \hline
+  && \\ \hline
+  \cipher-01 30 01-ЛУ& Программа визуализации  \\ \hline
+  & эквипотенциальных поверхностей и  \\ \hline
+  & силовых линий \\ \hline
+  & Формуляр & \\ \hline
+  & Лист утверждения & \\ \hline
+  && \\ \hline
+  \cipher-01 31 01 & Программа визуализации \\ \hline
+  & эквипотенциальных поверхностей и & \\ \hline
+  &  силовых линий & \\ \hline
+  & Описание применения & \\ \hline
+  && \\ \hline
+  \cipher-01 31 01-ЛУ& Программа визуализации  \\ \hline
+  & эквипотенциальных поверхностей и  \\ \hline
+  & силовых линий \\ \hline
+  & Описание применения & \\ \hline
+  & Лист утверждения & \\ \hline
+  && \\ \hline
+  && \\ \hline
+  && \\ \hline[\rs]
+ \end{tblr}
+    
+ \pagebreak
+  
+ \noindent\begin{tblr}{
+  colspec = {|X[20,c]|X[20,c]|X[20,c]|},
+  rows = {5mm},
+  row{1} = {10mm,m},
+  rowsep = 0pt, colsep = 0pt,
+  vline{1-4} = {\rs}, hline{1,2} = {\rs}
+}
+  \SetCell[c=1]{c} \small Обозначение & \SetCell[c=1]{c} \small Наименование & \SetCell[c=1]{c} \small Примечание \\ 
+  && \\ \hline
+    \cipher-01 32 01 & Программа визуализации \\ \hline
+  & эквипотенциальных поверхностей и & \\ \hline
+  &  силовых линий & \\ \hline
+  & Руководство системного программиста & \\ \hline
+  && \\ \hline
+  \cipher-01 32 01-ЛУ& Программа визуализации  \\ \hline
+  & эквипотенциальных поверхностей и  \\ \hline
+  & силовых линий \\ \hline
+  & Руководство системного программиста  & \\ \hline
+  & Лист утверждения & \\ \hline
+  && \\ \hline
+  \cipher-01 33 01 & Программа визуализации \\ \hline
+  & эквипотенциальных поверхностей и & \\ \hline
+  &  силовых линий & \\ \hline
+  & Руководство программиста & \\ \hline
+  && \\ \hline
+  \cipher-01 33 01-ЛУ& Программа визуализации  \\ \hline
+  & эквипотенциальных поверхностей и  \\ \hline
+  & силовых линий \\ \hline
+  & Руководство программиста & \\ \hline
+  & Лист утверждения & \\ \hline
+  && \\ \hline
+  \cipher-01 34 01 & Программа визуализации \\ \hline
+  & эквипотенциальных поверхностей и & \\ \hline
+  &  силовых линий & \\ \hline
+  & Руководство оператора & \\ \hline
+  && \\ \hline
+  \cipher-01 34 01-ЛУ& Программа визуализации  \\ \hline
+  & эквипотенциальных поверхностей и  \\ \hline
+  & силовых линий \\ \hline
+  & Руководство оператора & \\ \hline
+  & Лист утверждения & \\ \hline
+  && \\ \hline
+  && \\ \hline
+  && \\ \hline
+  && \\ \hline
+  && \\ \hline
+  && \\ \hline
+  && \\ \hline
+  && \\ \hline
+  && \\ \hline
+  && \\ \hline
+  && \\ \hline
+  && \\ \hline
+  && \\ \hline
+  && \\ \hline[\rs]
+\end{tblr}
+
+\pagebreak
+
+\label{lastpage}
+\addcontentsline{toc}{chapter}{Лист регистрации изменений}
+\renewcommand{\headrulewidth}{0pt}
+\bfseries\fontsize{3.5mm}{3mm}\selectfont
+\noindent\begin{tblr}{colspec={|[\rs]p{8mm,c}|X[20,c]|X[20,c]|X[20,c]|X[20,c]|X[20,c]|X[25,c]|X[25,c]|X[15,c]|X[12,c]|[2pt]},
+             rows   = {5mm},
+             row{1} = {10mm,m},
+             row{2} = {5mm,m},
+             row{3} = {20mm,m},
+             rowsep = 0pt,colsep = 0pt,
+             vline{2-10} = {2-3}{\rs}
+}\hline[\rs]
+\SetCell[c=10]{c} {\fontsize{7mm}{0mm}\selectfont Лист регистрации изменений} &&&&&&&&&&& \\\hline[\rs]
+\SetCell[c=5]{c} {\small Номера листов (страниц)} &&&&& \SetCell[r=2]{c} Всего листов (страниц) в документе & \SetCell[r=2]{c} № документа & \SetCell[r=2]{c} {Входящий № сопроводи-\\тельного  документа и дата} & \SetCell[r=2]{c} Подп. & \SetCell[r=2]{c} Дата \\\hline[\rs]
+Изм & {Изменен-\\ных} & {Заменен-\\ных} & Новых & {Анулиро-\\ванных} &&&&& \\\hline[\rs]
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline[\rs]
+\end{tblr}
+
+\end{document}

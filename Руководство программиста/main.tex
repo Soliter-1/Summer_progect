@@ -1,0 +1,459 @@
+\documentclass[14pt,a4paper,final]{extreport}
+\nonstopmode
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\DeclareUnicodeCharacter{0306}{~}
+\usepackage[russian]{babel}
+\usepackage[a4paper, top=2cm, bottom=2cm, left=2cm, right=1cm,marginparsep=.5cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage[export]{adjustbox}
+\usepackage{marginnote}
+\usepackage{tabularray}
+\usepackage{longtable}
+\usepackage{ltablex}
+
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=\parindent,nosep}
+\setlist[enumerate]{leftmargin=\parindent,nosep}
+\renewcommand\labelitemi{--}
+
+\usepackage{caption}
+\captionsetup[figure]{name=Рисунок, labelfont=bf, labelsep=period}
+
+\usepackage[none]{hyphenat}
+\usepackage{setspace}
+\onehalfspacing 
+\usepackage{float}
+\usepackage{xpatch}
+
+\usepackage{tocloft, titlesec, titletoc}
+\usepackage{indentfirst}
+\titleformat{\chapter}[block]{\normalfont\bfseries\large}{\thechapter}{1ex}{\centering\MakeUppercase}
+\titlespacing*{\chapter}{0pt}{-\baselineskip}{2\baselineskip}
+
+\usepackage[hidelinks]{hyperref}
+
+\titleformat{\section}[block]{\normalfont}{\thesection}{1ex}{\normalfont}
+\titlespacing{\section}{1.25cm}{\baselineskip}{\baselineskip}
+
+%Оформление подразделов
+\titleformat{\subsection}[block]{\normalfont}{\thesubsection}{1ex}{\normalfont}
+\titlespacing{\subsection}{1.25cm}{\baselineskip}{\baselineskip}
+
+%Оформление под-подразделов
+\titleformat{\subsubsection}[block]{\normalfont}{\thesubsection}{1ex}{\normalfont}
+\titlespacing{\subsubsection}{1.25cm}{0pt}{\baselineskip}
+
+\usepackage{titlesec}
+
+% Настройка глубины нумерации заголовков
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+% Настройка внешнего вида заголовков с помощью titlesec
+\titleformat{\subsubsection}[hang]{\normalfont\normalsize}{\thesubsubsection}{0.5em}{}
+
+%\titlespacing{\subsubsection}{35pt}{\parskip}{\parskip}
+
+%\setcounter{tocdepth}{4}%
+%\setcounter{secnumdepth}{4}% Number \subsubsection
+\renewcommand{\cftdotsep}{2.75}
+\renewcommand{\cftchapfont}{\normalfont}
+\renewcommand{\cfttoctitlefont}{\hfill\normalfont\large\bfseries}
+\renewcommand{\cftaftertoctitle}{\hfill}
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}} % for chapters
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}  % for sections
+\renewcommand{\cftsubsecleader}{\cftdotfill{\cftdotsep}} % for subsections
+\renewcommand{\cftsubsubsecleader}{\cftdotfill{\cftdotsep}} % for subsubsections
+\setlength{\cftbeforetoctitleskip}{-.6\baselineskip}
+\setlength{\cftaftertoctitleskip}{-\baselineskip}
+\setlength{\cftbeforechapskip}{\baselineskip}
+\renewcommand{\cftchappagefont}{}
+
+\renewcommand{\contentsname}{СОДЕРЖАНИЕ\vspace{\baselineskip}}% (ГОСТ Р 7.0.11-2011, 4)
+\addto{\captionsrussian}{\renewcommand{\bibname}{СПИСОК ИСПОЛЬЗОВАННОЙ ЛИТЕРАТУРЫ\bigskip}}
+
+\makeatletter
+\renewcommand\@biblabel[1]{#1.\ }
+\makeatother
+
+\let\mtcontentsname\contentsname\addto\captionsrussian{\typeout{foo}\renewcommand{\contentsname}{\MakeUppercase\mtcontentsname}}
+
+\makeatletter
+\patchcmd{\chapter}{\if@openright\cleardoublepage\else\clearpage\fi}{\vspace{3\baselineskip}}{}{}
+\makeatother
+
+\newcommand*\rot[1]{\rotatebox{90}{#1}}
+\newlength{\rs}
+\setlength{\rs}{.5mm}
+
+\makeatletter
+\AddEnumerateCounter{\asbuk}{\russian@alph}{щ}
+\makeatother
+
+\fancypagestyle{firststyle}
+{
+    \fancyhf{} % sets both header and footer to nothing
+    \renewcommand{\headrulewidth}{0pt}
+    \fancyfoot[C]{
+    
+        {\vspace{-\baselineskip}\normalfont\textbf{Москва 2026}}
+    } 
+}
+
+\begin{document}
+\pagenumbering{gobble}
+\raggedbottom
+
+%для изменения
+\newcommand{\fullname}{Нагороднюк Алиса Дмитриевна}
+\newcommand{\shname}{Нагороднюк А.Д.}
+\newcommand{\grp}{М3О-225БВ-24}
+\newcommand{\variant}{9} %номер варианта (если многозначный - уберите 0 в \cipher)
+\newcommand{\fieldA}{\( \vec a = z^3 \vec i + x^3 \vec j + y^3 \vec k \)}
+\newcommand{\fieldB}{\( \vec b = (y^3z^4 + 2xy) \vec i + (3xy^2z^4 + x^2) \vec j + (4xy^3z^3 + 2z) \vec k \)}
+
+\newcommand{\cipher}{643.02066606.0000\variant}
+\newcommand{\cipherlri}{643.02066606.\\0000\variant}
+\newcommand{\docstamp}{\cipher-01 33 01}
+\newcommand{\doctitle}{Программа визуализации\\эквипотенциальных поверхностей\\и силовых линий}
+\newcommand{\doctitleoneline}{Программа визуализации эквипотенциальных поверхностей и силовых линий}
+\newcommand{\programtitle}{VectorField}
+\newcommand{\docname}{Руководство программиста}
+\input{lu.tex}
+\pagebreak
+
+\input{title.tex}
+\pagebreak
+
+\parindent=1.25cm
+\sloppy
+
+\pagenumbering{arabic}
+\setcounter{page}{2}
+
+\pagestyle{fancy}
+
+\fancypagestyle{plain}
+
+\fancyhf{} % clear all header and footer fields
+
+\fancyhead[C]{\bfseries\thepage\\\docstamp}
+
+\renewcommand{\headrulewidth}{0pt}
+\pagebreak
+\chapter*{Аннотация}
+\addcontentsline{toc}{chapter}{Аннотация}
+
+В данном программном документе приведено руководство программиста по
+настройке и использованию программы <<\programtitle>>, предназначенной для визуализации эквипотенциальных поверхностей и силовых линей двух полей, заданных двумя векторами и областью определения, а также расчета и отображения параметров этих вектор-полей.
+
+В данном программном документе, в разделе <<Назначение и условия
+применения программы>> указаны назначение и функции, выполняемые программой,
+условия, необходимые для выполнения программы (объем оперативной памяти,
+требования к составу и параметрам периферийных устройств, требования к
+программному обеспечению и т.п.).
+
+В разделе <<Характеристика программы>> приведено описание основных
+характеристик и особенностей программы (режим работы, средства контроля
+правильности выполнения и т.п.).
+
+В данном программном документе, в разделе «Входные и выходные данные»
+приведено описание организации используемой входной и выходной информации.
+
+В разделе <<Сообщения>> указаны тексты сообщений, выдаваемых
+программисту или оператору в ходе выполнения программы, описание их
+содержания и действий, которые необходимо предпринять по этим сообщениям.
+
+Оформление программного документа <<Руководство программиста>> произведено по требованиям ЕСПД (ГОСТ~19.101-2024~\footnote{ГОСТ 19.101-2024 ЕСПД. Виды программ и программных документов}, 
+ГОСТ~19.103-77~\footnote{ГОСТ 19.103-77 ЕСПД. Обозначение программ и программных документов}, 
+ГОСТ~19.104-78*~\footnote{ГОСТ 19.104-78* ЕСПД. Основные надписи}, 
+ГОСТ~19.105-78*~\footnote{ГОСТ 19.105-78* ЕСПД. Общие требования к программным документам},
+ГОСТ~19.504-79~\footnote{ГОСТ 19.201-78 ЕСПД. Руководство программиста. Требования к содержанию и оформлению}.
+
+\pagebreak
+
+\addcontentsline{toc}{chapter}{Содержание}
+
+\tableofcontents
+
+\pagebreak
+
+\chapter{Назначение и условие применения программы}
+\section{Назначение программы}
+
+Программа предназначена для визуализации эквипотенциальных полей и силовых линий, заданных двумя векторами и областью определения, а также расчета и отображения параметров этих вектор-полей.
+
+\section{Функции, выполняемые программой}
+
+Функциями программы являются:
+
+\begin{enumerate}[label=\asbuk*),ref=\asbuk*]
+	\item вычисление потока поля \( \vec a \) через поверхность \( S \) (поверхность \( S \) --- часть единичной сферы \(x^2 + y^2 + z^2 = 1 \), лежащая в первом октанте (\( x \geq 0 \), \( y \geq 0 \), \( z \geq 0 \)) в направлении внешней нормали для сферы двумя способами:
+	\begin{enumerate}[label=\arabic*.]
+		\item по формуле Гаусса-Остроградского, замкнув поверхность \( S \) частями координатных плоскостей;
+		\item с помощью поверхностного интеграла;
+	\end{enumerate}
+	
+	\item вычисление циркуляции \( C \) поля \( \vec a \) по контуру поверхности \( S \) в положительном направлении со стороны внешней нормали двумя способами:
+	\begin{enumerate}[label=\arabic*.]
+		\item по формуле Стокса;
+		\item с помощью криволинейного интеграла;
+	\end{enumerate}
+	
+	\item изучение поля \( \vec b \):
+	\begin{enumerate}[label=\arabic*.]
+		\item проверить потенциальность поля \( b \), убедившись, что \( \mathrm{rot} \, \vec b = 0 \);
+		\item вычислить потенциал \( \varphi \) поля \( b \) по формуле \[ \varphi = \int_0^x{b_x(x,0,0)\,dx} + \int_0^y{b_y(x,y,0)\,dy} +\int_0^z{b_z(x,y,z)\,dz}\;; \]
+		\item проверить безошибочность нахождения потенциала с помощью формул \[ \varphi'_x = b_x\mathrm{,}\;\varphi'_y = b_y\mathrm{,}\;\varphi'_z = b_z\;; \]
+		\item вычислить с помощью потенциала \( \varphi \) работу \( W \) сил поля по перемещению материальной точки из точки \(O(0,0,0) \) в точку \( M(1,1,1) \), убедиться, что ответ \( W = 3 \) (контрольное число);
+	\end{enumerate}
+	
+	\item визуализация векторных полей: построение и отображение силовых линий поля \fieldA, построение и отображение силовых линий поля \fieldB;
+	
+	\item визуализация эквипотенциальных поверхностей: вычисление и отображение эквипотенциальных поверхностей для поля \fieldA, вычисление и отображение эквипотенциальных поверхностей для поля \fieldB.
+\end{enumerate}
+
+\section{Условия, необходимые для выполнения программы}
+
+Для обеспечения функционирования программы на компьютере, на котором будет эксплуатироваться данный программный продукт, должно быть установлено следующее программное обеспечение:
+
+Наименование программы: C++.
+
+Обозначение программы: C++.
+
+Версия программного изделия: 15.0
+
+\subsection{Объем оперативной памяти}
+
+Оперативная память объемом не менее 256 Мб.
+
+\subsection{Требования к составу периферийных устройств}
+
+Персональный компьютер, на котором выполняется программа должен включать в свой состав:
+
+\begin{itemize}
+	\item манипулятор типа <<мышь>>;
+	\item клавиатура.
+\end{itemize}
+
+\subsection{Требования к параметрам периферийных устройств}
+
+Специальных требований к параметру периферийных устройств не предъявляется.
+
+\subsection{Требования к программному обеспечению}
+
+Для обеспечения функционирования программы на компьютере, на котором будет эксплуатироваться данный программный продукт, должно быть установлено следующее программное обеспечение:
+
+Наименование программы: Visual Studio.
+
+Обозначение программы: Visual Studio.
+
+Версия программного изделия: 2019 и выше.
+
+\section{Требования к персоналу (программисту)}
+
+Программист должен иметь минимум среднее техническое образование и должен быть аттестован минимум на I квалификационную группу по электробезопасности.
+
+В перечень задач, выполняемых программистом, должны входить:
+
+\begin{enumerate}
+	\item[а)] Задача поддержания работоспособности технических средств;
+	\item[б)] Задача поддержания работоспособности системных программных средств -- операционной системы;
+	\item[в)] Задача поддержания работоспособности программы \programtitle.
+\end{enumerate}
+
+\chapter{Характеристика программы}
+
+\section{Описание основных характеристик программы}
+
+\subsection{Режим работы программы}
+
+Программа работает в режиме визуализации эквипотенциальных поверхностей и силовых линий.
+
+\subsection{Контроль правильности выполнения программы}
+
+Проверка правильности выполнения программы описана в пункте <<Проверка программы>> Руководства системного программиста. 
+
+\section{Описание основных особенностей программы}
+
+Программа реализована по монолитному принципу и содержит одну форму.
+
+\section{Самовосстанавливаемость программы}
+
+Программа не обладает специальными механизмами самовосстановления. Для восстановления работоспособности после критической ошибки перезапустите программу.
+
+\chapter{Обращение к программе}
+
+\section{Загрузка и запуск программы}
+
+\subsection{Загрузка программы}
+
+Для загрузки программного обеспечения необходимо иметь установленную интегрированную среду разработки Microsoft Visual Studio версии 2019 или выше.
+
+По ссылке URL: https://disk.yandex.ru/d/we\_pQkf5pbdiIA скачать архив «VectorField» и распаковать его.
+
+Открыть распакованную папку «VectorField» и найти файл \texttt{VectorField.sln}. Нажать на найденный файл правой кнопкой мыши и выбрать «Открыть с помощью» -> «Microsoft Visual Studio 2019» («Microsoft Visual Studio 2022») (рис. 3.1).
+
+\begin{figure}[H]	
+	\includegraphics[width=0.95\linewidth]{pics/1.png}
+	\label{fig:1}
+	\caption{Загрузка программы}
+\end{figure} 
+
+\subsection{Запуск программы}
+
+Для запуска программного обеспечения необходимо сперва выполнить действия описанные в пункте <<Загрузка программы>>. 
+
+После загрузки Microsoft Visual Studio и открытия основного окна среды разработки, необходимо нажать на кнопку <<Локальный отладчик Windows>>, расположенные наверху окна (рис. 3.2). После нажатия этой кнопки произойдет сборка проекта и открытие исполняемого файла программы.
+
+\begin{figure}[H]	
+	\includegraphics[width=0.95\linewidth]{pics/2.png}
+	\label{fig:2}
+	\caption{Запуск программы}
+\end{figure} 
+
+\section{Выполнение программы}
+
+По завершении запуска программы откроется главная форма, на которой имеются следующие кнопки:
+
+\begin{itemize}
+	\item Настройки;
+	\item Ввод данных;
+	\item Показать данные;
+	\item Рассчитать поле;
+	\item Визуализировать поле;
+	\item Визуализировать силовые линии;
+	\item Вывод данных;
+	\item Выход.
+\end{itemize}
+
+Действия, выполняемые каждой из кнопок, описаны справа от них (рис. 3.3). Окна, открываемые данными кнопками, содержат подробное объяснение их функций.
+
+\begin{figure}[H]	
+	\includegraphics[width=0.95\linewidth]{pics/3.png}
+	\label{fig:3}
+	\caption{Запуск программы}
+\end{figure} 
+
+\section{Завершение работы программы}
+
+Завершение работы программы осуществляется путем закрытия главной экранной формы.
+\pagebreak
+
+\chapter{Входные и выходные данные}
+
+\section{Организация используемой входной информации}
+Входные данные могут быть представлены (по выбору пользователя):
+\begin{enumerate}[label=\asbuk*),ref=\asbuk*]
+	\item в виде данных, введенных пользователем с клавиатуры;
+	\item в виде данных, хранящихся в файле формата \texttt{.txt}.
+\end{enumerate}
+
+Входной файл формата \texttt{.txt} содержит:
+\begin{enumerate}[label=\arabic*.,ref=\arabic*]
+	\item вариант;
+	\item номер выбранного поля;
+	\item введённое поле;
+	\item радиус сферы;
+	\item точка для расчета потенциала поля;
+	\item точка для расчета ротора поля;
+	\item точка для расчета дивергенции;
+
+\end{enumerate}
+
+\section{Организация используемой выходной организации}
+
+Выходные данные выводятся на экран пользователя в виде рассчитанных характеристик полей и визуализации эквипотенциальных полей и силовых линий.
+
+Пользователь имеет возможность вывести рассчитанные характеристики поля нажатием кнопки <<Вывод данных>>, при нажатии на которую откроется окно с выбором файла для сохранения расчетов (рис. 4.1).
+
+\begin{figure}[H]	
+	\includegraphics[width=0.95\linewidth]{pics/4.png}
+	\label{fig:4}
+	\caption{Сохранение данных}
+\end{figure} 
+
+Пример выходных данных приведен на рис. 4.2.
+
+\begin{figure}[H]	
+	\includegraphics[width=0.95\linewidth]{pics/5.png}
+	\label{fig:5}
+	\caption{Пример выходных данных}
+\end{figure} 
+
+\chapter{Сообщения}
+
+\section{Сообщения в процессе работы программы}
+
+В случае возникновения ошибок пользователю выводится сообщение, информирующее его о характере ошибки.
+
+Пример ошибки-предупреждения приведен на рис. 5.1. Данную ошибку вызывает попытка провести вывод данных в файл до проведения расчетов. Для её устранения необходимо сперва провести расчеты, нажав на кнопку <<Рассчитать поле>>.
+
+\begin{figure}[H]	
+	\includegraphics[width=0.95\linewidth]{pics/6.png}
+	\label{fig:6}
+	\caption{Пример сообщения об ошибке}
+\end{figure} 
+
+\pagebreak
+
+\label{lastpage}
+
+\addcontentsline{toc}{chapter}{Лист регистрации изменений}
+\renewcommand{\headrulewidth}{0pt}
+\fontsize{3.5mm}{3mm}\selectfont
+\noindent\begin{tblr}{colspec={|[\rs]p{8mm,c}|X[20,c]|X[20,c]|X[20,c]|X[20,c]|X[20,c]|X[25,c]|X[25,c]|X[15,c]|X[12,c]|[2pt]},
+             rows   = {5mm},
+             row{1} = {10mm,m},
+             row{2} = {5mm,m},
+             row{3} = {20mm,m},
+             rowsep = 0pt,colsep = 0pt,
+             vline{2-10} = {2-3}{\rs}
+}\hline[\rs]
+\SetCell[c=10]{c} {\fontsize{7mm}{0mm}\selectfont Лист регистрации изменений} &&&&&&&&&&& \\\hline[\rs]
+\SetCell[c=5]{c} {\small Номера листов (страниц)} &&&&& \SetCell[r=2]{c} Всего листов (страниц) в документе & \SetCell[r=2]{c} № документа & \SetCell[r=2]{c} {Входящий № сопроводи-\\тельного  документа и дата} & \SetCell[r=2]{c} Подп. & \SetCell[r=2]{c} Дата \\\hline[\rs]
+Изм & {Изменен-\\ных} & {Заменен-\\ных} & Новых & {Анулиро-\\ванных} &&&&& \\\hline[\rs]
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline[\rs]
+\end{tblr}
+
+\end{document}

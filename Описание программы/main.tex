@@ -1,0 +1,456 @@
+\documentclass[14pt,a4paper,final]{extreport}
+\nonstopmode
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\DeclareUnicodeCharacter{0306}{~}
+\usepackage[russian]{babel}
+\usepackage[a4paper, top=2cm, bottom=2cm, left=2cm, right=1cm,marginparsep=.5cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage[export]{adjustbox}
+\usepackage{marginnote}
+\usepackage{tabularray}
+\usepackage{longtable}
+\usepackage{ltablex}
+
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=\parindent,nosep}
+\setlist[enumerate]{leftmargin=\parindent,nosep}
+\renewcommand\labelitemi{--}
+
+\usepackage{caption}
+\captionsetup[figure]{name=Рисунок, labelfont=bf, labelsep=period}
+
+\usepackage[none]{hyphenat}
+\usepackage{setspace}
+\onehalfspacing 
+\usepackage{float}
+\usepackage{xpatch}
+
+\usepackage{tocloft, titlesec, titletoc}
+\usepackage{indentfirst}
+\titleformat{\chapter}[block]{\normalfont\bfseries\large}{\thechapter}{1ex}{\centering\MakeUppercase}
+\titlespacing*{\chapter}{0pt}{-\baselineskip}{2\baselineskip}
+
+\titleformat{\section}[block]{\normalfont}{\thesection}{1ex}{\normalfont}
+\titlespacing{\section}{1.25cm}{\baselineskip}{\baselineskip}
+
+%Оформление подразделов
+\titleformat{\subsection}[block]{\normalfont}{\thesubsection}{1ex}{\normalfont}
+\titlespacing{\subsection}{1.25cm}{\baselineskip}{\baselineskip}
+
+%Оформление под-подразделов
+\titleformat{\subsubsection}[block]{\normalfont}{\thesubsection}{1ex}{\normalfont}
+\titlespacing{\subsubsection}{1.25cm}{0pt}{\baselineskip}
+
+\usepackage{titlesec}
+
+% Настройка глубины нумерации заголовков
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+% Настройка внешнего вида заголовков с помощью titlesec
+\titleformat{\subsubsection}[hang]{\normalfont\normalsize}{\thesubsubsection}{0.5em}{}
+
+%\titlespacing{\subsubsection}{35pt}{\parskip}{\parskip}
+
+%\setcounter{tocdepth}{4}%
+%\setcounter{secnumdepth}{4}% Number \subsubsection
+\renewcommand{\cftdotsep}{2.75}
+\renewcommand{\cftchapfont}{\normalfont}
+\renewcommand{\cfttoctitlefont}{\hfill\normalfont\large\bfseries}
+\renewcommand{\cftaftertoctitle}{\hfill}
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}} % for chapters
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}  % for sections
+\renewcommand{\cftsubsecleader}{\cftdotfill{\cftdotsep}} % for subsections
+\renewcommand{\cftsubsubsecleader}{\cftdotfill{\cftdotsep}} % for subsubsections
+\setlength{\cftbeforetoctitleskip}{-.6\baselineskip}
+\setlength{\cftaftertoctitleskip}{-\baselineskip}
+\setlength{\cftbeforechapskip}{\baselineskip}
+\renewcommand{\cftchappagefont}{}
+
+\renewcommand{\contentsname}{СОДЕРЖАНИЕ\vspace{\baselineskip}}% (ГОСТ Р 7.0.11-2011, 4)
+\addto{\captionsrussian}{\renewcommand{\bibname}{СПИСОК ИСПОЛЬЗОВАННОЙ ЛИТЕРАТУРЫ\bigskip}}
+
+\makeatletter
+\renewcommand\@biblabel[1]{#1.\ }
+\makeatother
+
+\let\mtcontentsname\contentsname\addto\captionsrussian{\typeout{foo}\renewcommand{\contentsname}{\MakeUppercase\mtcontentsname}}
+
+\makeatletter
+\patchcmd{\chapter}{\if@openright\cleardoublepage\else\clearpage\fi}{\vspace{3\baselineskip}}{}{}
+\makeatother
+
+\newcommand*\rot[1]{\rotatebox{90}{#1}}
+\newlength{\rs}
+\setlength{\rs}{.5mm}
+
+\makeatletter
+\AddEnumerateCounter{\asbuk}{\russian@alph}{щ}
+\makeatother
+
+\fancypagestyle{firststyle}
+{
+    \fancyhf{} % sets both header and footer to nothing
+    \renewcommand{\headrulewidth}{0pt}
+    \fancyfoot[C]{
+    
+        {\vspace{-\baselineskip}\normalfont\textbf{Москва 2026}}
+    } 
+}
+
+\begin{document}
+\pagenumbering{gobble}
+\raggedbottom
+
+%для изменения
+\newcommand{\fullname}{Нагороднюк Алиса Дмитриевна}
+\newcommand{\shname}{Нагороднюк А. Д.}
+\newcommand{\grp}{М3О-225БВ-24}
+\newcommand{\variant}{9} %номер варианта (если многозначный - уберите 0 в \cipher)
+\newcommand{\fieldA}{\( \vec a = z^3 \vec i + x^3 \vec j + y^3 \vec k \)}
+\newcommand{\fieldB}{\( \vec b = (y^3z^4 + 2xy) \vec i + (3xy^2z^4 + x^2) \vec j + (4xy^3z^3 + 2z) \vec k \)}
+
+\newcommand{\cipher}{643.02066606.000\variant}
+\newcommand{\cipherlri}{643.02066606.\\000\variant}
+\newcommand{\docstamp}{\cipher-01 13 01}
+\newcommand{\doctitle}{Программа визуализации\\эквипотенциальных поверхностей\\и силовых линий}
+\newcommand{\doctitleoneline}{Программа визуализации эквипотенциальных поверхностей и силовых линий}
+\newcommand{\programtitle}{VectorField}
+\newcommand{\docname}{Описание программы}
+\input{lu.tex}
+\pagebreak
+
+\input{title.tex}
+\pagebreak
+
+\parindent=1.25cm
+\sloppy
+
+\pagenumbering{arabic}
+\setcounter{page}{2}
+
+\pagestyle{fancy}
+
+\fancypagestyle{plain}
+
+\fancyhf{} % clear all header and footer fields
+
+\fancyhead[C]{\bfseries\thepage\\\docstamp}
+
+\renewcommand{\headrulewidth}{0pt}
+\pagebreak
+
+\chapter*{Аннотация}
+\addcontentsline{toc}{chapter}{Аннотация}
+
+В данном программном документе приведено описание <<Программы визуализации эквипотенциальных поверхностей и силовых линий. Вариант \variant>>, предназначенной для визуализации эквипотенциальных поверхностей и силовых линий полей \fieldA \ и \fieldB.
+
+Исходным языком данной разработки являeтся С++. Среда разработки --- \texttt{Microsoft Visual Studio} 2022 (локализованная русская версия).
+
+<<\doctitleoneline>> содержит следующие модули: 
+
+\begin{itemize}
+	\item Модуль ввода;
+	\item Модуль расчёта эквипотенциальных поверхностей;
+	\item Модуль расчёта силовых линий;
+	\item Модуль визуализации.
+\end{itemize}
+
+\pagebreak
+
+\addcontentsline{toc}{chapter}{Содержание}
+
+\begin{small}
+\tableofcontents
+\end{small}
+
+\pagebreak
+
+\chapter{ОБЩИЕ СВЕДЕНИЯ}
+\section{Обозначение и наименование программы}
+
+Основанием для проведения разработки является техническое задание на технологическую практику.
+
+<<\doctitleoneline>> имеет следующие атрибуты:
+%из принятого (но не подписанного) формуляра
+\begin{table}[ht]
+	\centering
+	\begin{tabular}{p{7cm} p{11cm}}
+		- Версия продукта &  - 1.00.0000\\ 
+		- Внутреннее имя	 &  - \programtitle \\
+		- Название продукта &  - \programtitle \\
+		- Описание версии файла &  - \programtitle\ ver. 1.00.0000 \\
+		- Производитель &  - МАИ, Московский авиационный институт \\ %см. устав
+		- Язык &  - Русский (Россия) \\																	
+	\end{tabular}
+\end{table}
+
+\section{Программное обеспечение, необходимое для функционирования программы}
+
+Для обеспечения функционирования программы на компьютере, на котором будет эксплуатироваться данная программа, должно быть установлено следующее программное обеспечение:
+
+Системные программные средства, используемые программой, должны быть представлены локализованной версией операционной системы на базе
+\texttt{Microsoft Windows 10} или выше.
+
+\section{Языки программирования, на которых написана программа}
+
+Исходным языком программы «\programtitle» является C++. Среда разработки --- \texttt{Microsoft Visual Studio} 2022 (локализованная русская версия).
+
+\chapter{ФУНКЦИОНАЛЬНОЕ НАЗНАЧЕНИЕ}
+\section{Классы решаемых задач}
+
+\begin{enumerate}
+	\item импорт и преобразование исходных данных;
+	\item расчёт параметров полей;
+	\item расчёт эквипотенциальных поверхностей;
+	\item расчёт силовых линий;
+	\item визуализация результатов на экране.
+\end{enumerate}
+
+
+\section{Назначение программы}
+Основным назначением программы является удовлетворение потребности пользователя в визуализации эквипотенциальных поверхностей и силовых линий, с целью расчета и моделирования элементов теории поля.
+
+\section{Сведения о функциональных ограничениях на применение}
+Программа способна выполнять расчёты и визуализацию \textbf{только} для полей
+\fieldA\ и \fieldB. Вводимые данные должны соответствовать требованиям,
+указанным в разделе \ref{inpdata} на странице \pageref{inpdata} настоящего документа.
+\pagebreak
+
+\chapter{ОПИСАНИЕ ЛОГИЧЕСКОЙ СТРУКТУРЫ}
+
+\section{Алгоритм программы}
+
+\subsection{Схема взаимодействия программ}
+\pagebreak
+\begin{figure}[H]	
+	\includegraphics[width=0.95\textwidth]{pics/bs1.png}
+	\label{fig:bs1}
+	\caption{Схема взаимодействия программ}
+\end{figure} 
+\pagebreak
+
+\pagebreak
+
+\setcounter{page}{1}
+\fancyhead[C]{\bfseries7.\thepage\\\docstamp}  % верхний колонтитул
+%\addtocounter{page}{-1}
+%\fancyhead[C]{\bfseries\thepage.1\\\docstamp}  % верхний колонтитул
+\subsection{Список символов схемы взаимодействия программ}
+
+Подробное описание главной кнопочной формы и обозначений представлены в документе <<Пояснительная записка>>. Текст функций, процедур и методов преставлен в документе <<Текст программы>>.
+
+\texttt{A1} -- Ввод пользователя путём взаимодействия с кнопочной формой и заполнения полей с клавиатуры.
+
+\texttt{B1} -- Модуль отрисовки главной кнопочной формы в соответствии с требованиями и отображение
+информации об авторе, авторских правах, версии, разработчике и операционной системе (см. раздел <<Функция WndProc>> в документе Текст программы).
+
+\texttt{A2} -- Модуль  настроек по нажатию клавиши <Setting> (см. раздел <<Функция KeyboardInputWndProc>> в документе Текст программы).
+
+\texttt{B2} -- Модуль отображения формы ввода по нажатию клавиши <Input> (см. раздел <<Функция WndProc>> в документе Текст программы).
+
+\texttt{C2} --Модуль расчётов по формулам теории поля и математического анализа по нажатию клавиши <Solve> (см. раздел <<Функция CalculationsWndProc>> в документе Текст программы).
+
+\texttt{D2} -- Модуль экспорта теории поля и математического анализа по нажатию клавиши в формат txt (см. документ Текст программы).
+
+\texttt{E2}  -- Модуль отображения визуализации эквипотенциальных поверхностей на основании
+рассчитанных данных по нажатию клавиши <VisualizeField> (см. раздел <<FieldWndProc>> в документе Текст программы).
+
+\texttt{F2} -- Модуль отображения рассчитанных поверхностей по нажатию клавиши <VisualizeLines> (см. раздел <<Функция PowerLinesWndProc>> в документе Текст программы).
+
+\texttt{A3} -- Модуль отображения рассчитанных линий по нажатию клавиши <VisualizeLines> (см. раздел <<Функция PowerLinesWndProc>> в документе Текст программы).
+
+\pagebreak
+
+\subsection{Схема данных}
+
+\begin{figure}[H]
+	\includegraphics[width=0.95\textwidth]{pics/d1.png}
+	\label{fig:d1}
+	\caption{Схема данных часть 1}
+\end{figure} 
+
+\begin{figure}[H]
+	\includegraphics[width=0.95\textwidth]{pics/d2.png}
+	\label{fig:d2}
+	\caption{Схема данных часть 2}
+\end{figure}
+
+\pagebreak
+
+\subsection{Список символов схемы данных}
+
+Подробное описание главной кнопочной формы и обозначений представлены в документе <<Пояснительная записка>>. Текст функций, процедур и методов преставлен в документе <<Текст программы>>.
+
+\texttt{1A1} -- Входные данные: координаты точек в трёхмерном пространстве, ввод может осуществляться с клавиатуры или из файла.
+
+\texttt{1B1} -- Модуль расчёта ротора (см. раздел <<Метод Rotor>> в документе Текст программы).
+
+\texttt{1C1} -- Модуль расчёта дивергенции (см. раздел <<Метод Divergence>> в документе Текст программы).
+
+\texttt{1D1} -- Модуль отпределения класса поля на основании рассчитанных ротора и дивергенции
+(см. раздел <<Метод CheckClass>> в документе Текст программы).
+
+\texttt{1E1} -- Модуль расчёта потока (см. раздел <<Метод GaussOstrogradskyFormulaForOktantOfBall>> в документе Текст программы).
+
+\texttt{1F1} -- Модуль расчёта циркуляции (см. раздел <<Метод CirculationOverLineIntegral>> в документе Текст программы).
+
+\texttt{1D3} -- Вывод полученных результатов на экран в соответствующие поля формы (см. раздел <<CalculationsWndProc>> в документе Текст программы).
+
+\texttt{1E3} -- Вывод полученных результатов в файл (см. раздел <<InputWndProc>> в документе Текст программы).
+
+\texttt{2A1} -- Модуль расчёта потенциала (см. раздел <<Метод Potential>> в документе Текст программы).
+
+\texttt{2B1} -- Модуль расчёта работы поля на основании вычисленных потенциалов (см. раздел <<Процедура Calc>> в документе Текст программы).
+
+\texttt{2C1} -- Модуль визуализации эквипотенциальных поверхностей на основании вычисленных потенциалов (см. раздел <<FieldWndProc>> в документе Текст программы).
+
+\texttt{2D1} -- Модуль визуализации силовых линий на основании вычисленных потенциалов (см. раздел <<PowerLinesWndProc>> в документе Текст программы).
+
+\subsection{Диаграмма классов}
+Класс <<MathOperations>> определён в разделе <<MathOperations.h>> документа Текст программы.
+Класс <<VectorField>> определён в разделе <<VectorFields.h>> в документе Текст программы.
+
+\begin{figure}[H]
+	\includegraphics[width=0.3\textwidth]{pics/cd.png}
+	\label{fig:cd1}
+	\caption{Диаграмма классов}
+\end{figure} 
+
+\pagebreak
+\setcounter{page}{8}
+\fancyhead[C]{\bfseries\thepage\\\docstamp}  % верхний колонтитул
+
+\section{Используемые методы}
+Детальная информация обо всех используемых методах и их кратких характеристиках
+приведена в документе <<Текст программы>>.
+
+\section{Связи программы с другими программами}
+
+Связи с другими программами отсутствуют.
+
+\chapter{ИСПОЛЬЗУЕМЫЕ ТЕХНИЧЕСКИЕ СРЕДСТВА}
+
+В состав технических средств входит \texttt{IBM}-совместимый персональный компьютер
+(ПЭВМ), включающий в себя:
+\begin{enumerate}[label=\asbuk*),ref=\asbuk*]
+	\item Процессор \texttt{Intel Core i5} 2-ого поколения;
+	\item Оперативную память объемом 256 Мб;
+	\item Графический процессор \texttt{Intel HD Graphics 3000};
+	\item Свободного места для хранения 64 Мб;
+	\item Периферийные устройства такие как клавиатура, монитор с разрешением 1280 точек в ширину на 720 точек в высоту.
+\end{enumerate}
+
+\chapter{ВЫЗОВ И ЗАГРУЗКА}
+
+Загрузка и запуск программы осуществляется способами, детальные сведения о которых изложены в Руководстве оператора.
+
+\chapter{ВХОДНЫЕ ДАННЫЕ}
+\label{inpdata}
+\begin{enumerate}
+	\item Вектор поля \fieldA;
+	\item Вектор поля \fieldB;
+	\item Область определения координаты \( x \):
+	\begin{enumerate}
+		\item[а)] Начальное значение \( x_{min} \) -- целое число в диапазоне [-100; 100);
+		\item[б)] Конечное значение \( x_{max} \) -- целое число в диапазоне (-100; 100];
+	\end{enumerate}
+	\item Область определения координаты \( y \):
+	\begin{enumerate}
+		\item[а)] Начальное значение \( y_{min} \) -- целое число в диапазоне [-100; 100);
+		\item[б)] Конечное значение \( y_{max} \) -- целое число в диапазоне (-100; 100];
+	\end{enumerate}
+	\item Область определения координаты \( z \):
+	\begin{enumerate}
+		\item[а)] Начальное значение \( z_{min} \) -- целое число в диапазоне [-100; 100);
+		\item[б)] Конечное значение \( z_{max} \) -- целое число в диапазоне (-100; 100].
+	\end{enumerate}
+\end{enumerate}
+Ввод данных и выбор источника ввода происходят при помощи кнопочной формы,
+описание которой приведено в документе <<Пояснительная записка>>.
+
+\chapter{ВЫХОДНЫЕ ДАННЫЕ}
+В область выходных данных программы входят:
+\begin{enumerate}
+	\item Изменения на экране пользователя под воздействием управляющих
+	сигналов: 
+	\begin{enumerate}[label=\asbuk*),ref=\asbuk*]
+		\item вывод результатов расчета потока поля \( \vec a \) через поверхность \( S \), циркуляции \( C \) поля \( \vec a \) поверхности \( S \), ротора поля \( \vec b \) \( \mathrm{rot}\,\vec b \), потенциала поля \( \vec b \), работы \( W \) сил поля по перемещению материальной точки из точки \(O(0,0,0) \):
+		\begin{enumerate}
+			\item в виде числовых значений и формул на экране монитора;
+			\item в виде данных, записанных в файл расширения \texttt{.txt}.
+		\end{enumerate}
+		\item вывод данных результатов визуализации поля должен быть представлен в виде изображения силовых линий и эквипотенциальных поверхностей поля на экране монитора.
+	\end{enumerate}
+\end{enumerate}
+Вывод данных происходит путём записи значений и отрисовки изображений
+в соответствующих полях кнопочной формы,
+описание которой приведено в документе <<Пояснительная записка>>.
+
+\pagebreak
+
+\label{lastpage}
+
+%\newcounter{totalpages}
+%\setcounter{totalpages}{\pageref{lastpage}}
+%\addtocounter{totalpages}{5}
+
+
+\addcontentsline{toc}{chapter}{Лист регистрации изменений}
+\renewcommand{\headrulewidth}{0pt}
+\fontsize{3.5mm}{3mm}\selectfont
+\noindent\begin{tblr}{colspec={|[\rs]p{8mm,c}|X[20,c]|X[20,c]|X[20,c]|X[20,c]|X[20,c]|X[25,c]|X[25,c]|X[15,c]|X[12,c]|[2pt]},
+             rows   = {5mm},
+             row{1} = {10mm,m},
+             row{2} = {5mm,m},
+             row{3} = {20mm,m},
+             rowsep = 0pt,colsep = 0pt,
+             vline{2-10} = {2-3}{\rs}
+}\hline[\rs]
+\SetCell[c=10]{c} {\fontsize{7mm}{0mm}\selectfont Лист регистрации изменени\U{й}} &&&&&&&&&&& \\\hline[\rs]
+\SetCell[c=5]{c} {\small Номера листов (страниц)} &&&&& \SetCell[r=2]{c} Всего листов (страниц) в документе & \SetCell[r=2]{c} № документа & \SetCell[r=2]{c} {Входящи\U{й} № сопроводи-\\тельного  документа и дата} & \SetCell[r=2]{c} Подп. & \SetCell[r=2]{c} Дата \\\hline[\rs]
+Изм & {Изменен-\\ных} & {Заменен-\\ных} & Новых & {Анулиро-\\ванных} &&&&& \\\hline[\rs]
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline[\rs]
+\end{tblr}
+
+\end{document}

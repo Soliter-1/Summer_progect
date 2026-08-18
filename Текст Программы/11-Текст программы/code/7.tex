@@ -1,0 +1,200 @@
+\section{Функция BuildReportText}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Функция       : BuildReportText                                        *
+*------------------------------------------------------------------------*
+* Назначение    : Формирование полного отчета по расчетам                *
+* Входные       : Нет                                                    *
+* Выходные      : wstring - текст итогового отчета                       *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Собирает результаты вычислений (потоки, циркуляции, потенциал)          *
+* в единую строку для вывода в интерфейс или сохранения в файл.          *
+*************************************************************************/
+wstring BuildReportText() { wstringstream rep; rep << fixed << setprecision(4); 
+    Polynomial U = FieldMathCalculations::GetAnalyticalPotential();
+    rep << L"========== РАССЧИТАННЫЕ ДАННЫЕ (ВАР. №" << g_VariantNum << L") ======\n\n"
+        << L"► 1. КЛАССИФИКАЦИЯ ПОЛЯ ā:\n   • Тип поля: " 
+        << FieldMathCalculations::DetermineFieldClass
+	( FieldMathCalculations::EvaluateFieldA) << L"\n\n"
+        << L"► 2. ВЫЧИСЛЕНИЕ ПОТОКА ПОВЕРХНОСТИ S (ПОЛЕ ā):\n"
+        << L"   • 2.1 Метод Остроградского-Гаусса: P = " 
+        << FieldMathCalculations::Calc_Flux_GaussOstrogradsky() << L"\n"
+        << L"   • 2.2 Метод прямого интегрирования: P = " 
+        << FieldMathCalculations::Calc_Flux_Direct() << L"\n\n"
+        << L"► 3. ВЫЧИСЛЕНИЕ ЦИРКУЛЯЦИИ ПО КОНТУРУ S (ПОЛЕ ā):\n"
+        << L"   • 3.1 Метод теоремы Стокса: C = " 
+        << FieldMathCalculations::Calc_Circulation_Stokes() << L"\n"
+        << L"   • 3.2 Метод криволинейного интеграл: C = " 
+        << FieldMathCalculations::Calc_Circulation_Direct() << L"\n\n"
+        << L"► 4. ИССЛЕДОВАНИЕ ПОЛЯ b̄:\n" << L"   • 4.1 Проверка потенциальности: " 
+        << (FieldMathCalculations::CheckRotorBZero() ? 
+            L"поле потенциально" : L"поле не потенциально") << L"\n"
+        << L"   • 4.2 Потенциал U(x, y, z) = " << U.ToWString() << L"\n"
+        << L"U(1, 1, 1) = " << U.Evaluate(1, 1, 1) << L"\n"<< L" • 4.3 Проверка градиента: " 
+        << (FieldMathCalculations::VerifyPotentialCorrectness() ? 
+            L"успешна" : L"не успешна") << L"\n" << L"   • 4.4 Работа сил поля W = " 
+        << U.Evaluate(1, 1, 1) - U.Evaluate(0, 0, 0) << L"\n\n"
+        << L"========================================================="; return rep.str(); }
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Процедура CreateInterfaceButtons}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Процедура     : CreateInterfaceButtons                                 *
+*------------------------------------------------------------------------*
+* Назначение    : Создание кнопок управления интерфейсом                 *
+* Входные       : hWnd - окно, hInstance - экземпляр приложения          *
+* Выходные      : Нет                                                    *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Инициализирует элементы управления (кнопки) в рабочей области окна.    *
+*************************************************************************/
+void CreateInterfaceButtons(HWND hWnd, HINSTANCE hInstance) {
+    int y1 = 45, w = 185, h = 35, step = 190;
+    CreateWindowW(L"BUTTON", L"1. Импорт данных", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 
+                  20 + 0 * step, y1, w, h, hWnd, (HMENU)ID_BTN_IMPORT, 
+                  hInstance, NULL);
+    CreateWindowW(L"BUTTON", L"2. Показать данные", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 
+                  20 + 1 * step, y1, w, h, hWnd, (HMENU)ID_BTN_SHOW, 
+                  hInstance, NULL);
+    CreateWindowW(L"BUTTON", L"3. Расчёт данных", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 
+                  20 + 2 * step, y1, w, h, hWnd, (HMENU)ID_BTN_CALC, 
+                  hInstance, NULL);
+    CreateWindowW(L"BUTTON", L"4. Визуализация Поля А", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 
+                  20 + 3 * step, y1, w, h, hWnd, (HMENU)ID_BTN_VIS_A, 
+                  hInstance, NULL);
+    CreateWindowW(L"BUTTON", L"5. Визуализация Поля Б", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 
+                  20 + 4 * step, y1, w, h, hWnd, (HMENU)ID_BTN_VIS_B, hInstance, NULL);
+    CreateWindowW(L"BUTTON", L"6. Экспорт в TXT", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 
+                  20 + 5 * step, y1, w, h, hWnd, (HMENU)ID_BTN_EXPORT, hInstance, NULL);
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Процедура DrawBackground}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Процедура     : DrawBackground                                         *
+*------------------------------------------------------------------------*
+* Назначение    : Отрисовка фона и информации о разработчиках            *
+* Входные       : hdc - контекст устройства, rect - область отрисовки    *
+* Выходные      : Нет                                                    *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Заливает фон цветом и выводит строку с информацией о разработчиках.    *
+*************************************************************************/
+void DrawBackground(HDC hdc, RECT rect) {
+    HBRUSH hBgBrush = CreateSolidBrush(RGB(240, 244, 248)); 
+    FillRect(hdc, &rect, hBgBrush); 
+    DeleteObject(hBgBrush);
+    HFONT hFontDev = CreateFontW(18, 0, 0, 0, FW_SEMIBOLD, 0, 0, 0, DEFAULT_CHARSET,
+		 OUT_OUTLINE_PRECIS, CLIP_DEFAULT_PRECIS,
+ 		 CLEARTYPE_QUALITY, VARIABLE_PITCH, L"Segoe UI");
+    HFONT hOld = (HFONT)SelectObject(hdc, hFontDev); 
+    SetBkMode(hdc, TRANSPARENT); SetTextColor(hdc, RGB(0, 0, 0));
+    wstring devInfo = L"Разработчики: Варфоломеев, Великоцкая, Нагороднюк "
+                      L"  |   Группа: М3О-225БВ-24";
+    RECT devRect = { 25, 10, rect.right - 20, 35 }; 
+    DrawTextW(hdc, devInfo.c_str(), -1, &devRect, 
+              DT_LEFT | DT_VCENTER | DT_SINGLELINE);     
+    SelectObject(hdc, hOld); DeleteObject(hFontDev);
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Процедура DrawStatusAndCard}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Процедура     : DrawStatusAndCard                                      *
+*------------------------------------------------------------------------*
+* Назначение    : Отрисовка панели статуса и центральной "карточки"      *
+* Входные       : hdc - контекст устройства, rect - область отрисовки    *
+* Выходные      : Нет                                                    *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Рисует полосу статуса и прямоугольник (карточку) для вывода контента.   *
+*************************************************************************/
+void DrawStatusAndCard(HDC hdc, RECT rect) {
+    RECT sRect = { 20, 100, rect.right - 20, 130 }; 
+    HBRUSH hStatB = CreateSolidBrush(RGB(225, 235, 245)); 
+    FillRect(hdc, &sRect, hStatB); DeleteObject(hStatB);
+    HFONT hFontS = CreateFontW(16, 0, 0, 0, FW_BOLD, 0, 0, 0, DEFAULT_CHARSET,
+		 OUT_OUTLINE_PRECIS, CLIP_DEFAULT_PRECIS,
+		 CLEARTYPE_QUALITY, VARIABLE_PITCH, L"Segoe UI");
+    HFONT hOld = (HFONT)SelectObject(hdc, hFontS); 
+    SetTextColor(hdc, RGB(0, 0, 0));
+    RECT sText = { 35, 105, rect.right - 35, 125 }; 
+    DrawTextW(hdc, g_StatusMessage.c_str(), -1, &sText, 
+              DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+    RECT cR = { 20, 145, rect.right - 20, rect.bottom - 20 }; 
+    RECT shR = { cR.left + 3, cR.top + 3, cR.right + 3, cR.bottom + 3 };
+    HBRUSH hShB = CreateSolidBrush(RGB(220, 225, 230)); 
+    FillRect(hdc, &shR, hShB); DeleteObject(hShB);
+    HBRUSH hCardB = CreateSolidBrush(RGB(255, 255, 255)); 
+    HPEN hCardP = CreatePen(PS_SOLID, 1, RGB(200, 205, 215));
+    HPEN hOldP = (HPEN)SelectObject(hdc, hCardP); 
+    HBRUSH hOldB = (HBRUSH)SelectObject(hdc, hCardB);
+    Rectangle(hdc, cR.left, cR.top, cR.right, cR.bottom);
+    SelectObject(hdc, hOldB); SelectObject(hdc, hOldP); 
+    DeleteObject(hCardB); DeleteObject(hCardP); 
+    SelectObject(hdc, hOld); DeleteObject(hFontS);
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Процедура HandlePaint}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Процедура     : HandlePaint                                            *
+*------------------------------------------------------------------------*
+* Назначение    : Обработчик события перерисовки окна (WM_PAINT)         *
+* Входные       : hWnd - дескриптор окна                                 *
+* Выходные      : Нет                                                    *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Вызывает функции отрисовки интерфейса и выводит контент в зависимости    *
+* от выбранного пользователем режима (вид 0-4).                          *
+*************************************************************************/
+void HandlePaint(HWND hWnd) {
+    PAINTSTRUCT ps; HDC hdc = BeginPaint(hWnd, &ps); RECT r; GetClientRect(hWnd, &r);
+    DrawBackground(hdc, r); DrawStatusAndCard(hdc, r);
+    HFONT hF = CreateFontW(20, 0, 0, 0, FW_NORMAL, 0, 0, 0, DEFAULT_CHARSET,
+        OUT_OUTLINE_PRECIS,  CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, 
+        VARIABLE_PITCH, L"Segoe UI");
+    HFONT hOld = (HFONT)SelectObject(hdc, hF); SetTextColor(hdc, RGB(0, 0, 0)); 
+    RECT tR = { 40, 165, r.right - 40, r.bottom - 40 };
+    if (g_ActiveView == 1) { wstring t = BuildInputDataText(); 
+        DrawTextW(hdc, t.c_str(), -1, &tR, DT_LEFT | DT_WORDBREAK);}
+    else if (g_ActiveView == 2) { wstring t = BuildReportText(); 
+        DrawTextW(hdc, t.c_str(), -1, &tR, DT_LEFT | DT_WORDBREAK);}
+    else if (g_ActiveView == 3 || g_ActiveView == 4) DrawVisualization(hdc, tR);
+    else if (g_ActiveView == 0) { wstring t = L"\n\n ПРОГРАММА РАСЧЕТА ПАРАМЕТРОВ "
+                    L"ВЕКТОРНЫХ ПОЛЕЙ\n       -------------------------"
+                    L"-------------------\n\n"
+                    L"       Для работы с программой:\n\n"
+                    L"       1. Нажмите кнопку «1. Импорт данных» сверху\n"
+                    L"       2. Выберите .txt файл с вариантом задания\n"
+                    L"       3. Нажмите «3. Расчёт данных» для отчета\n"
+                    L"       4. Используйте кнопки визуализации.\n"
+                    L"       5. Сохраните результат (кнопка 6).\n";
+        DrawTextW(hdc, t.c_str(), -1, &tR, DT_LEFT | DT_WORDBREAK);}
+    SelectObject(hdc, hOld); DeleteObject(hF); EndPaint(hWnd, &ps);
+}
+\end{listing}
+\normalsize
+\pagebreak

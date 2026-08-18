@@ -1,0 +1,154 @@
+\section{Метод FieldMathCalculations::ParsePolynomials}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Метод         : FieldMathCalculations::ParsePolynomials                *
+*------------------------------------------------------------------------*
+* Назначение    : Парсинг строковых выражений в структуру полиномов      *
+* Входные       : a_str, b_str - строки формул полей A и B               *
+* Выходные      : Нет (обновляет статические поля класса)                *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Метод преобразует текстовые представления векторных полей              *
+* в математическую структуру Polynomial.                                   *
+* *
+* АЛГОРИТМ:                                                              *
+* 1. Вызывает ExtractComponents для каждой строки поля (A и B).          *
+* 2. ExtractComponents выполняет нормализацию и разделение на            *
+* компоненты X, Y, Z.                                                    *
+* 3. Результаты сохраняются в статические переменные класса.             *
+*************************************************************************/
+void FieldMathCalculations::ParsePolynomials(const wstring& a_str, 
+                                             const wstring& b_str) {
+    ExtractComponents(a_str, fieldA_X, fieldA_Y, fieldA_Z);
+    ExtractComponents(b_str, fieldB_X, fieldB_Y, fieldB_Z);
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Метод FieldMathCalculations::EvaluateFieldA}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Метод         : FieldMathCalculations::EvaluateFieldA                  *
+*------------------------------------------------------------------------*
+* Назначение    : Вычисление вектора поля A в заданной точке             *
+* Входные       : x, y, z - координаты точки                             *
+* Выходные      : Vector3D - результирующий вектор поля в точке          *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Выполняет расчет численных значений компонент векторного поля A        *
+* в указанной точке.                                                     *
+* *
+* АЛГОРИТМ:                                                              *
+* 1. Обращается к компонентам fieldA_X, fieldA_Y, fieldA_Z.              *
+* 2. Вызывает метод Evaluate для каждого компонента.                     *
+* 3. Объединяет результаты в структуру Vector3D.                         *
+*************************************************************************/
+Vector3D FieldMathCalculations::EvaluateFieldA(double x, double y, double z) {
+    return { fieldA_X.Evaluate(x, y, z), 
+             fieldA_Y.Evaluate(x, y, z), 
+             fieldA_Z.Evaluate(x, y, z) };
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Метод FieldMathCalculations::EvaluateFieldB}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Метод         : FieldMathCalculations::EvaluateFieldB                  *
+*------------------------------------------------------------------------*
+* Назначение    : Вычисление вектора поля B в заданной точке             *
+* Входные       : x, y, z - координаты точки                             *
+* Выходные      : Vector3D - результирующий вектор поля в точке          *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Аналогичен EvaluateFieldA, но работает с полем B, используя методы-    *
+* геттеры для доступа к компонентам.                                     *
+* *
+* АЛГОРИТМ:                                                              *
+* 1. Вызывает методы GetFieldBX, GetFieldBY, GetFieldBZ.                 *
+* 2. Применяет метод Evaluate для каждого компонента.                    *
+* 3. Возвращает вектор в виде структуры Vector3D.                        *
+*************************************************************************/
+Vector3D FieldMathCalculations::EvaluateFieldB(double x, double y, double z) {
+    return { GetFieldBX().Evaluate(x, y, z), 
+             GetFieldBY().Evaluate(x, y, z), 
+             GetFieldBZ().Evaluate(x, y, z) };
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Метод FieldMathCalculations::Calc\_PartialDerivative}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Метод         : FieldMathCalculations::Calc_PartialDerivative          *
+*------------------------------------------------------------------------*
+* Назначение    : Численное вычисление частной производной функции       *
+* Входные       : f - функция, variable - индекс переменной, x,y,z       *
+* Выходные      : double - приближенное значение производной             *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Вычисляет производную функции f по переменной x, y или z               *
+* методом центральной разности.                                          *
+* *
+* АЛГОРИТМ:                                                              *
+* 1. Шаг дифференцирования h = 1e-4.                                     *
+* 2. Вычисляет отношение: (f(x+h) - f(x-h)) / (2*h).                     *
+*************************************************************************/
+double FieldMathCalculations::Calc_PartialDerivative(FUNC3D f, int variable, 
+                                                     double x, double y, 
+                                                     double z) {
+    double h = 1e-4;
+    if (variable == 1) return (f(x + h, y, z) - f(x - h, y, z)) / (2 * h);
+    if (variable == 2) return (f(x, y + h, z) - f(x, y - h, z)) / (2 * h);
+    return (f(x, y, z + h) - f(x, y, z - h)) / (2 * h);
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Метод FieldMathCalculations::IntegrateQuarterDisk}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Метод         : FieldMathCalculations::IntegrateQuarterDisk            *
+*------------------------------------------------------------------------*
+* Назначение    : Численное интегрирование функции по четверти диска     *
+* Входные       : func - подынтегральная функция, radius, steps          *
+* Выходные      : double - значение интеграла                            *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Численное интегрирование двумерной функции по области четверти         *
+* диска в полярных координатах (r, phi).                                 *
+* *
+* АЛГОРИТМ:                                                              *
+* 1. Переход к полярным координатам: x = r*cos(phi), y = r*sin(phi). "phi"-   *
+*обозначение полярного угла в системе полярных координат. *
+* 2. Вычисление двойной суммы по сеткам r и phi с учетом якобиана (r).   *
+*************************************************************************/
+double FieldMathCalculations::IntegrateQuarterDisk(
+    function<double(double, double)> func, double radius, int steps) {
+    double dr = radius / steps, dphi = (M_PI / 2.0) / steps, sum = 0.0;
+    for (int i = 0; i < steps; i++) {
+        double r = (i + 0.5) * dr;
+        for (int j = 0; j < steps; j++) {
+            sum += func(r * cos((j + 0.5) * dphi), 
+                        r * sin((j + 0.5) * dphi)) * r;
+        }
+    }
+    return sum * dr * dphi;
+}
+\end{listing}
+\normalsize
+
+\pagebreak

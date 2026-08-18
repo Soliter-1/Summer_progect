@@ -1,0 +1,395 @@
+\documentclass[14pt,a4paper,final]{extreport}
+\nonstopmode
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\DeclareUnicodeCharacter{0306}{~}
+\usepackage[russian]{babel}
+\usepackage[a4paper, top=2cm, bottom=2cm, left=2cm, right=1cm,marginparsep=.5cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage[export]{adjustbox}
+\usepackage{marginnote}
+\usepackage{tabularray}
+\usepackage{longtable}
+\usepackage{ltablex}
+
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=\parindent,nosep}
+\setlist[enumerate]{leftmargin=\parindent,nosep}
+\renewcommand\labelitemi{--}
+
+\usepackage{caption}
+\captionsetup[figure]{name=Рисунок, labelfont=bf, labelsep=period}
+
+\usepackage[none]{hyphenat}
+\usepackage{setspace}
+\onehalfspacing 
+\usepackage{float}
+\usepackage{xpatch}
+
+\usepackage{tocloft, titlesec, titletoc}
+\usepackage{indentfirst}
+\titleformat{\chapter}[block]{\normalfont\bfseries\large}{\thechapter}{1ex}{\centering\MakeUppercase}
+\titlespacing*{\chapter}{0pt}{-\baselineskip}{2\baselineskip}
+
+\titleformat{\section}[block]{\normalfont}{\thesection}{1ex}{\normalfont}
+\titlespacing{\section}{1.25cm}{\baselineskip}{\baselineskip}
+
+%Оформление подразделов
+\titleformat{\subsection}[block]{\normalfont}{\thesubsection}{1ex}{\normalfont}
+\titlespacing{\subsection}{1.25cm}{\baselineskip}{\baselineskip}
+
+%Оформление под-подразделов
+\titleformat{\subsubsection}[block]{\normalfont}{\thesubsection}{1ex}{\normalfont}
+\titlespacing{\subsubsection}{1.25cm}{0pt}{\baselineskip}
+
+\usepackage{titlesec}
+
+% Настройка глубины нумерации заголовков
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+% Настройка внешнего вида заголовков с помощью titlesec
+\titleformat{\subsubsection}[hang]{\normalfont\normalsize}{\thesubsubsection}{0.5em}{}
+
+%\titlespacing{\subsubsection}{35pt}{\parskip}{\parskip}
+
+%\setcounter{tocdepth}{4}%
+%\setcounter{secnumdepth}{4}% Number \subsubsection
+\renewcommand{\cftdotsep}{2.75}
+\renewcommand{\cftchapfont}{\normalfont}
+\renewcommand{\cfttoctitlefont}{\hfill\normalfont\large\bfseries}
+\renewcommand{\cftaftertoctitle}{\hfill}
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}} % for chapters
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}  % for sections
+\renewcommand{\cftsubsecleader}{\cftdotfill{\cftdotsep}} % for subsections
+\renewcommand{\cftsubsubsecleader}{\cftdotfill{\cftdotsep}} % for subsubsections
+\setlength{\cftbeforetoctitleskip}{-.6\baselineskip}
+\setlength{\cftaftertoctitleskip}{-\baselineskip}
+\setlength{\cftbeforechapskip}{\baselineskip}
+\renewcommand{\cftchappagefont}{}
+
+\renewcommand{\contentsname}{СОДЕРЖАНИЕ\vspace{\baselineskip}}% (ГОСТ Р 7.0.11-2011, 4)
+\addto{\captionsrussian}{\renewcommand{\bibname}{СПИСОК ИСПОЛЬЗОВАННОЙ ЛИТЕРАТУРЫ\bigskip}}
+
+\makeatletter
+\renewcommand\@biblabel[1]{#1.\ }
+\makeatother
+
+\let\mtcontentsname\contentsname\addto\captionsrussian{\typeout{foo}\renewcommand{\contentsname}{\MakeUppercase\mtcontentsname}}
+
+\makeatletter
+\patchcmd{\chapter}{\if@openright\cleardoublepage\else\clearpage\fi}{\vspace{3\baselineskip}}{}{}
+\makeatother
+
+\newcommand*\rot[1]{\rotatebox{90}{#1}}
+\newlength{\rs}
+\setlength{\rs}{.5mm}
+
+\makeatletter
+\AddEnumerateCounter{\asbuk}{\russian@alph}{щ}
+\makeatother
+
+\fancypagestyle{firststyle}
+{
+    \fancyhf{} % sets both header and footer to nothing
+    \renewcommand{\headrulewidth}{0pt}
+    \fancyfoot[C]{
+    
+        {\vspace{-\baselineskip}\normalfont\textbf{Москва 2026}}
+    } 
+}
+
+\begin{document}
+\pagenumbering{gobble}
+\raggedbottom
+
+%для изменения
+\newcommand{\fullname}{Нагороднюк Алиса Дмитриевна}
+\newcommand{\shname}{Нагороднюк А. Д.}
+\newcommand{\grp}{М3О-225Б-24}
+\newcommand{\variant}{9} %номер варианта (если многозначный - уберите 0 в \cipher)
+\newcommand{\fieldA}{\( \vec a = z^3 \vec i + x^3 \vec j + y^3 \vec k \)}
+\newcommand{\fieldB}{\( \vec b = (y^3z^4 + 2xy) \vec i + (3xy^2z^4 + x^2) \vec j + (4xy^3z^3 + 2z) \vec k \)}
+
+\newcommand{\cipher}{643.02066606.0000\variant}
+\newcommand{\cipherlri}{643.02066606.\\0000\variant}
+\newcommand{\docstamp}{\cipher-01 31 01}
+\newcommand{\doctitle}{Программа визуализации\\эквипотенциальных поверхностей\\и силовых линий}
+\newcommand{\doctitleoneline}{Программа визуализации эквипотенциальных поверхностей и силовых линий}
+\newcommand{\programtitle}{VectorField}
+\newcommand{\docname}{Описание применения}
+\input{lu.tex}
+\pagebreak
+
+\input{title.tex}
+\pagebreak
+
+\parindent=1.25cm
+\sloppy
+
+\pagenumbering{arabic}
+\setcounter{page}{2}
+
+\pagestyle{fancy}
+
+\fancypagestyle{plain}
+
+\fancyhf{} % clear all header and footer fields
+
+\fancyhead[C]{\bfseries\thepage\\\docstamp}
+
+\renewcommand{\headrulewidth}{0pt}
+\pagebreak
+
+\chapter*{Аннотация}
+\addcontentsline{toc}{chapter}{Аннотация}
+
+В данном программном документе приведено описание применения программы 
+«\programtitle», предназначенной для визуализации эквипотенциальных поверхностей и силовых линий полей \fieldA \ и \fieldB.
+
+В данном программном документе, в разделе «Назначение программы» приведено описание назначения программы, возможности данной программы, а также ее основные характеристики и ограничения, накладываемые на область применения программы.
+
+В разделе «Условия применения» указаны условия, необходимые для выполнения программы (требования к необходимым для данной программы техническим средствам, и другим программам, общие характеристики входной и выходной информации, а также требования и условия организационного, технического и технологического характера).
+
+В данном программном документе, в разделе «Описание задачи» указаны определения задачи и методы ее решения.
+
+В разделе «Входные и выходные данные» указаны сведения о входных и выходных данных.
+
+\pagebreak
+
+\addcontentsline{toc}{chapter}{Содержание}
+
+\tableofcontents
+\pagebreak
+
+\chapter{НАЗНАЧЕНИЕ ПРОГРАММЫ}
+\section{Назначение программы}
+Основным назначением программы является удовлетворение потребности пользователя в визуализации эквипотенциальных поверхностей и силовых линий, с целью расчета и моделирования элементов теории поля.
+
+\section{Возможности программы}
+В данном разделе описан пример применения программы.
+\subsection{Главная кнопочная форма}
+Главная кнопочная форма отображается при запуске программы и служит для открытия окон и выполнения действий по нажатию кнопок.
+\pagebreak
+\begin{figure}[H]	
+	\includegraphics[width=0.95\textwidth]{pics/gkf.png}
+	\label{fig:gkf}
+	\caption{Главная кнопочная форма}
+\end{figure}
+
+\subsection{Настройки}
+Настройка производится путём выбора варианта из файла. Номер варианта - \variant.
+\begin{figure}[H]	
+	\includegraphics[width=0.95\textwidth]{pics/st.png}
+	\label{fig:st}
+	\caption{Настройки}
+\end{figure}
+
+\subsection{Ввод данных}
+Данная кнопочная форма служит для ввода данных. Для примера вводим значения, указанные на рис. \ref{fig:kip}.
+\begin{figure}[H]	
+	\includegraphics[width=0.95\textwidth]{pics/input.png}
+	\caption{Ввод данных}
+	\label{fig:kip}
+\end{figure}
+
+\subsection{Показать данные}
+Проверку введённых данных можно выполнить по экранной форме, изображённой на рис. \ref{fig:data}.
+\begin{figure}[H]	
+	\includegraphics[width=0.95\textwidth]{pics/data.png}
+	\caption{Показать данные}
+	\label{fig:data}
+\end{figure}
+
+\subsection{Расчитать поле}
+По нажатии кнопки происходит расчёт параметров поля. Результат выводится в форме на рис. \ref{fig:calcfield}.
+\begin{figure}[H]	
+	\includegraphics[width=0.85\textwidth]{pics/calcfield.png}
+	\caption{Расчитать поле}
+	\label{fig:calcfield}
+\end{figure}
+
+\subsection{Визуализация эквипотенциальных полей}
+По нажатии кнопки происходит визуализация эквипотенциальных полей. Результат выводится в форме на рис. \ref{fig:field}.
+\begin{figure}[H]	
+	\includegraphics[width=0.95\textwidth]{pics/field.png}
+	\caption{Визуализация эквипотенциальных полей}
+	\label{fig:field}
+\end{figure}
+
+\subsection{Визуализация силовых линий}
+По нажатии кнопки происходит визуализация силовых линий. Результат выводится в форме на рис. \ref{fig:lines}.
+\begin{figure}[H]	
+	\includegraphics[width=0.95\textwidth]{pics/lines.png}
+	\caption{Визуализация силовых линий}
+	\label{fig:lines}
+\end{figure}
+
+\section{Основные характеристики программы}
+Программа осуществляет вычисление потока поля \( \vec a \) через поверхность \( S \) (поверхность \( S \),
+вычисление циркуляции \( C \) поля \( \vec a \) по контуру поверхности \( S \)
+в положительном направлении со стороны внешней нормали,
+визуализацию эквипотенциальных поверхностей и силовых линий полей \fieldA\ и \fieldB.
+
+\section{Ограничения, накладываемые на область применения программы}
+Программа способна выполнять расчёты и визуализацию \textbf{только} для полей
+\fieldA\ и \fieldB. Вводимые данные должны соответствовать требованиям,
+указанным в разделе \ref{inpdata} на странице \pageref{inpdata} настоящего документа.
+
+\chapter{УСЛОВИЯ ПРИМЕНЕНИЯ}
+\section{Требования к техническим (аппаратным) средствам}
+В состав технических средств входит \texttt{IBM}-совместимый персональный компьютер
+(ПЭВМ), включающий в себя:
+\begin{enumerate}[label=\asbuk*),ref=\asbuk*]
+	\item Процессор \texttt{Intel Core i5} 2-ого поколения;
+	\item Оперативную память объемом 256 Мб;
+	\item Графический процессор \texttt{Intel HD Graphics 3000};
+	\item Свободного места для хранения 64 Мб;
+	\item Периферийные устройства такие как клавиатура, монитор с разрешением 1280 точек в ширину на 720 точек в высоту.
+\end{enumerate}
+
+\section{Требования к программным средствам}
+Для обеспечения функционирования программы на компьютере, на котором будет эксплуатироваться данная программа, должно быть установлено следующее программное обеспечение:
+
+Системные программные средства, используемые программой, должны быть представлены локализованной версией операционной системы на базе
+\texttt{Microsoft Windows 10} или выше.
+
+\section{Общие характеристики входной информации}
+Характеристики входной информации представлены в документе <<Описание программы>>.
+
+\section{Общие характеристики выходной информации}
+Характеристики выходной информации представлены в документе <<Описание программы>>.
+
+
+\section{Требования и условия организационного характера}
+Специальные требования и условия организационного характера не предъявляются.
+               
+\section{Требования и условия технического характера}
+Специальные требования и условия технического характера не предъявляются.
+               
+\section{Требования и условия технологического характера}
+Для работы программы «\programtitle» не требуется обеспечения каких-либо особых требований и условий технологического характера.
+               
+\chapter{ОПИСАНИЕ ЗАДАЧИ}
+\section{Определение задачи}
+Определение задачи приведено в документе <<Пояснительная записка>>.
+
+\section{Методы решения задачи}
+Для решения задачи применяются следующие методы:
+
+\subsection{Метод ввода}
+Модуль обеспечивает возможность ввода пользователем данных согласно принципам,
+указанным в документе <<Описание программы>> с использованием экранных форм,
+описаных в документе <<Пояснительная записка>> .
+
+\subsection{Метод расчёта эквипотенциальных поверхностей}
+
+Модуль обеспечивает возможность выполнения перечисленных ниже функций:
+\begin{enumerate}[label=\asbuk*),ref=\asbuk*]
+	\item вычисление потока поля \( \vec a \) через поверхность \( S \) --- часть единичной сферы \(x^2 + y^2 + z^2 = 1 \), лежащая в первом октанте (\( x \geq 0 \), \( y \geq 0 \), \( z \geq 0 \) в направлении внешней нормали для сферы;
+	
+	\item вычисление циркуляции \( C \) поля \( \vec a \) по контуру поверхности \( S \) в положительном направлении со стороны внешней нормали;
+	
+	\item вычисление ротора поля \( \vec b \) \( \mathrm{rot}\, \vec b \);
+	
+	\item вычисление потенциала \( \varphi \) поля \( \vec b \);
+	
+	\item вычисление с помощью потенциала \( \varphi \) работы \( W \) сил поля по перемещению материальной точки из точки \(O(0,0,0) \) в точку \( M(1,1,1) \);
+	
+	\item расчёт эквипотенциальных поверхностей выбранного поля.
+\end{enumerate}
+
+\subsection{Метод расчёта силовых линий}
+Модуль обеспечивает возможность выполнения перечисленных ниже функций:
+\begin{enumerate}[label=\asbuk*),ref=\asbuk*]
+	\item вычисление потока поля \( \vec a \) через поверхность \( S \) --- часть единичной сферы \(x^2 + y^2 + z^2 = 1 \), лежащая в первом октанте (\( x \geq 0 \), \( y \geq 0 \), \( z \geq 0 \) в направлении внешней нормали для сферы;
+	
+	\item вычисление циркуляции \( C \) поля \( \vec a \) по контуру поверхности \( S \) в положительном направлении со стороны внешней нормали;
+	
+	\item вычисление ротора поля \( \vec b \) \( \mathrm{rot}\, \vec b \);
+	
+	\item вычисление потенциала \( \varphi \) поля \( \vec b \);
+	
+	\item вычисление с помощью потенциала \( \varphi \) работы \( W \) сил поля по перемещению материальной точки из точки \(O(0,0,0) \) в точку \( M(1,1,1) \);
+	
+	\item расчёт силовых линий выбранного поля.
+\end{enumerate}
+
+\subsection{Метод визуализации}
+Визуализация выполняется на основании расчётов, проведённых в соответствии с формулами
+теории поля, в специально отведённых полях экранной формы, описанной в документе <<Пояснительная записка.
+
+\chapter{ВХОДНЫЕ И ВЫХОДНЫЕ ДАННЫЕ}
+
+\section{Сведения о входных данных}
+Сведения о входных данных представлены в документе <<Описание программы>>.
+
+\section{Сведения о выходных данных}
+Сведения о выходных данных представлены в документе <<Описание программы>>.
+
+\pagebreak
+
+\label{lastpage}
+
+%\newcounter{totalpages}
+%\setcounter{totalpages}{\pageref{lastpage}}
+%\addtocounter{totalpages}{5}
+
+
+\addcontentsline{toc}{chapter}{Лист регистрации изменений}
+\renewcommand{\headrulewidth}{0pt}
+\fontsize{3.5mm}{3mm}\selectfont
+\noindent\begin{tblr}{colspec={|[\rs]p{8mm,c}|X[20,c]|X[20,c]|X[20,c]|X[20,c]|X[20,c]|X[25,c]|X[25,c]|X[15,c]|X[12,c]|[2pt]},
+             rows   = {5mm},
+             row{1} = {10mm,m},
+             row{2} = {5mm,m},
+             row{3} = {20mm,m},
+             rowsep = 0pt,colsep = 0pt,
+             vline{2-10} = {2-3}{\rs}
+}\hline[\rs]
+\SetCell[c=10]{c} {\fontsize{7mm}{0mm}\selectfont Лист регистрации изменений} &&&&&&&&&&& \\\hline[\rs]
+\SetCell[c=5]{c} {\small Номера листов (страниц)} &&&&& \SetCell[r=2]{c} Всего листов (страниц) в документе & \SetCell[r=2]{c} № документа & \SetCell[r=2]{c} {Входящий № сопроводи-\\тельного  документа и дата} & \SetCell[r=2]{c} Подп. & \SetCell[r=2]{c} Дата \\\hline[\rs]
+Изм & {Изменен-\\ных} & {Заменен-\\ных} & Новых & {Анулиро-\\ванных} &&&&& \\\hline[\rs]
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline
+&&&&&&&&&&& \\ \hline[\rs]
+\end{tblr}
+
+\end{document}

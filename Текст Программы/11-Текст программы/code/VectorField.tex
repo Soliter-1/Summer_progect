@@ -1,0 +1,385 @@
+\section{Функция WinMain}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Функция       : WinMain                                                *
+*------------------------------------------------------------------------*
+* Назначение    : Точка входа в Windows-приложение                       *
+* Входные       : hInstance, hPrevInstance, lpCmdLine, nCmdShow          *
+* Выходные      : int - код завершения программы                         *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Регистрирует класс окна, создает основное окно приложения и запускает  *
+* цикл обработки сообщений (Message Loop).                                *
+*************************************************************************/
+int WINAPI WinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE hPInst, 
+                   _In_ LPSTR cmd, _In_ int nCmdShow) {
+    WNDCLASSEXW wcex = { sizeof(WNDCLASSEX), CS_HREDRAW | CS_VREDRAW, 
+		WndProc, 0, 0, hInst, NULL, LoadCursor(NULL, IDC_ARROW), 
+		(HBRUSH)(COLOR_WINDOW + 1), NULL, L"FRC", NULL };
+    if (!RegisterClassExW(&wcex)) return 0;
+    HWND hWnd = CreateWindowW(L"FRC", 
+		L"Теория Поля — Расчет параметров векторных полей", WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT, CW_USEDEFAULT, 1200, 800, NULL, NULL, hInst, NULL);                     
+    ShowWindow(hWnd, nCmdShow); UpdateWindow(hWnd); MSG msg; 
+    while (GetMessage(&msg, NULL, 0, 0)) { 
+        TranslateMessage(&msg); DispatchMessage(&msg); 
+    }
+    return (int)msg.wParam;
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Функция PolyToWolframString}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Функция       : PolyToWolframString                                    *
+*------------------------------------------------------------------------*
+* Назначение    : Конвертация многочлена в формат Wolfram Language      *
+* Входные       : p - объект Polynomial                                  *
+* Выходные      : wstring - строка для Mathematica/WolframScript         *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Преобразует внутреннее представление полинома в математическую строку, *
+* понятную для интерпретатора Wolfram.                                   *
+*************************************************************************/
+wstring PolyToWolframString(const Polynomial& p) {
+    if (p.terms.empty()) return L"0"; wstringstream ss; bool first = true;
+    for (const auto& term : p.terms) { if (term.coef > 0 && !first) ss << L" + ";
+        if (term.coef < 0) ss << (first ? L"-" : L" - ");
+        ss << fixed << setprecision(4) << abs(term.coef);
+        if (term.px > 0) { 
+            ss << L"*x"; if (term.px > 1) ss << L"^" << term.px;}
+        if (term.py > 0) { 
+            ss << L"*y"; if (term.py > 1) ss << L"^" << term.py;}
+        if (term.pz > 0) { 
+            ss << L"*z"; if (term.pz > 1) ss << L"^" << term.pz; 
+        }
+        first = false;
+    }
+    return ss.str();
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Функция GenerateWolframPlot}\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Функция        : GenerateWolframPlot                                   *
+*------------------------------------------------------------------------*
+* Назначение     : Координация процесса генерации и загрузки графика     *
+* Входные        : isA - флаг выбора поля (true - поле A, false - поле B)*
+*                : err - ссылка для записи кода ошибки в случае неудачи  *
+* Выходные       : bool - true при успехе, false при возникновении ошибки*
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Получает строковое представление компонентов поля, определяет имена    *
+* файлов скрипта и графики, вызывает функцию записи скрипта WriteScript. *
+* Затем через RunWolfram запускает рендеринг и загружает результирующий  *
+* BMP-файл в соответствующий глобальный дескриптор.                      *
+*************************************************************************/
+bool GenerateWolframPlot(bool isA, ErrCode& err) {
+    auto& fmc = FieldMathCalculations;
+    wstring px = PolyToWolframString(isA ? fmc::fieldA_X : fmc::GetFieldBX());
+    wstring py = PolyToWolframString(isA ? fmc::fieldA_Y : fmc::GetFieldBY());
+    wstring pz = PolyToWolframString(isA ? fmc::fieldA_Z : fmc::GetFieldBZ());
+    
+    wstring scr = isA ? L"t_a.wl" : L"t_b.wl";
+    wstring bmp = isA ? L"t_a.bmp" : L"t_b.bmp";
+    DeleteFileW(bmp.c_str());
+    
+    if (!WriteScript(isA, px, py, pz, scr, bmp)) {
+        err = ErrWlScript;
+        return false;
+    }
+    if (!RunWolfram(scr)) {
+        err = ErrWlNotFound;
+        return false;
+    }
+    
+    HBITMAP hBmp = (HBITMAP)LoadImageW(
+        NULL, bmp.c_str(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE
+    );
+    if (!hBmp) {
+        err = ErrWlImage;
+        return false;
+    }
+    
+    if (isA) g_hPlotBitmapA = hBmp; else g_hPlotBitmapB = hBmp;
+    return true;
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Функция WriteScript}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Функция        : WriteScript                                           *
+*------------------------------------------------------------------------*
+* Назначение     : Создание файла скрипта WolframScript (.wl)            *
+* Входные        : isA - флаг выбора поля (true - поле A, false - поле B)*
+*                : px, py, pz - компоненты вектора в формате Wolfram     *
+*                : scr - путь для сохранения файла скрипта               *
+*                : bmp - целевой путь сохранения результирующего графика *
+* Выходные       : bool - true, если файл успешно записан, иначе false   *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Рассчитывает потенциал поля, генерирует код на языке Wolfram Language  *
+* для построения комбинированного графика VectorPlot3D и ContourPlot3D,  *
+* перекодирует полученную строку в UTF-8 и записывает её в файл скрипта. *
+*************************************************************************/
+bool WriteScript(bool isA, const wstring& px, const wstring& py,
+                 const wstring& pz, const wstring& scr, const wstring& bmp) {
+    wstring pot = isA ? L"Norm[f]" :
+        PolyToWolframString(FieldMathCalculations::GetAnalyticalPotential());
+    
+    wstringstream ss;
+    ss << L"f={" << px << L"," << py << L"," << pz << L"};\npot=" << pot << L";\n"
+       << L"v=VectorPlot3D[f,{x,-2,2},{y,-2,2},{z,-2,2},VectorPoints->{7,7,7},"
+       << L"VectorColorFunction->\"Rainbow\",VectorStyle->\"Arrow\",VectorSizes->0.7,"
+       << L"VectorAspectRatio->0.1,ViewPoint->{2.5,-2.5,1.8}];\n"
+       << L"s=ContourPlot3D[pot,{x,-2,2},{y,-2,2},{z,-2,2},Contours->1,"
+       << L"ColorFunction->\"Rainbow\",ContourStyle->Directive[Opacity[0.7]],"
+       << L"Mesh->None,ViewPoint->{2.5,-2.5,1.8}];\n"
+       << L"combined=GraphicsRow[{s,v},ImageSize->1600];\n"
+       << L"Export[\"" << bmp << L"\",combined,ImageResolution->150];\n";
+    
+    wstring ws = ss.str();
+    int len = WideCharToMultiByte(CP_UTF8, 0, ws.c_str(), -1, 0, 0, 0, 0);
+    string u8(len, '\0');
+    WideCharToMultiByte(CP_UTF8, 0, ws.c_str(), -1, &u8[0], len, 0, 0);
+    
+    ofstream f(scr, ios::binary);
+    if (!f.is_open()) return false;
+    f.write(u8.c_str(), len - 1);
+    return true;
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Функция RunWolfram}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Функция        : RunWolfram                                            *
+*------------------------------------------------------------------------*
+* Назначение     : Исполнение сгенерированного .wl скрипта во внешней    *
+*                : среде WolframScript                                   *
+* Входные        : scr - путь к запускаемому файлу скрипта               *
+* Выходные       : bool - true, если процесс завершился успешно, иначе   *
+*                : false                                                 *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Формирует команду вызова исполняемого файла WolframScript.exe с флагом *
+* -file. Запускает скрытый фоновый процесс без создания окна консоли,    *
+* ожидает окончания рендеринга графики и корректно закрывает дескрипторы *
+*************************************************************************/
+bool RunWolfram(const wstring& scr) {
+    wstring cmd = L"\"C:\\Program Files\\Wolfram Research"
+        L"\\WolframScript\\wolframscript.exe\" -file " + scr;
+    
+    STARTUPINFOW si = { sizeof(si) };
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    
+    PROCESS_INFORMATION pi = { 0 };
+    if (!CreateProcessW(
+        NULL, &cmd[0], NULL, NULL, FALSE,
+        CREATE_NO_WINDOW, NULL, NULL, &si, &pi
+    )) return false;
+    
+    WaitForSingleObject(pi.hProcess, INFINITE);
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+    return true;
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Процедура DrawVisualization}\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Процедура      : DrawVisualization                                     *
+*------------------------------------------------------------------------*
+* Назначение     : Отрисовка графического представления выбранного поля   *
+* Входные        : hdc  - дескриптор контекста устройства вывода         *
+*                : rect - прямоугольная область для рисования            *
+* Выходные       : Нет                                                   *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Определяет активную битовую карту поля, рассчитывает пропорциональные *
+* координаты вывода с помощью GetDrawCoords, масштабирует изображение   *
+* (StretchBlt с качественным сглаживанием) и выводит подписи к графикам.*
+*************************************************************************/
+void DrawVisualization(HDC hdc, RECT rect) {
+    HBITMAP hBmp = (g_ActiveView == 3) ? g_hPlotBitmapA : g_hPlotBitmapB;
+    if (!hBmp) return;
+    
+    HDC hdcMem = CreateCompatibleDC(hdc);
+    HBITMAP hOldBmp = (HBITMAP)SelectObject(hdcMem, hBmp);
+    
+    BITMAP bitmap;
+    GetObject(hBmp, sizeof(BITMAP), &bitmap);
+    
+    int lblH = 35, dW, dH, dX, dY;
+    GetDrawCoords(bitmap, rect, lblH, dW, dH, dX, dY);
+    
+    SetStretchBltMode(hdc, HALFTONE);
+    StretchBlt(
+        hdc, dX, dY, dW, dH, hdcMem, 0, 0,
+        bitmap.bmWidth, bitmap.bmHeight, SRCCOPY
+    );
+    
+    SelectObject(hdcMem, hOldBmp);
+    DeleteDC(hdcMem);
+    
+    DrawLabels(hdc, dX, dW, dY, dH, lblH);
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Процедура GetDrawCoords}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Процедура      : GetDrawCoords                                         *
+*------------------------------------------------------------------------*
+* Назначение     : Расчет координат вывода с сохранением пропорций       *
+* Входные        : bmp  - структура с характеристиками изображения       *
+*                : r    - прямоугольник доступной области рисования      *
+*                : lblH - высота области, резервируемой под подписи      *
+* Выходные       : dW, dH - рассчитанные ширина и высота для вывода     *
+*                : dX, dY - рассчитанные координаты левого верхнего угла *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Сравнивает соотношение сторон исходного изображения и области вывода  *
+* (с вычетом места под текст). Центрирует изображение по горизонтали     *
+* или вертикали в зависимости от того, по какой оси произошло сжатие.   *
+*************************************************************************/
+void GetDrawCoords(const BITMAP& bmp, const RECT& r, int lblH,
+                   int& dW, int& dH, int& dX, int& dY) {
+    int rW = r.right - r.left;
+    int rH = r.bottom - r.top - lblH;
+    if (rH < 50) rH = 50;
+    
+    double aspB = (double)bmp.bmWidth / bmp.bmHeight;
+    double aspR = (double)rW / rH;
+    
+    if (aspB > aspR) {
+        dW = rW;
+        dH = (int)(rW / aspB);
+        dX = r.left;
+        dY = r.top + (rH - dH) / 2;
+    } else {
+        dW = (int)(rH * aspB);
+        dH = rH;
+        dX = r.left + (rW - dW) / 2;
+        dY = r.top;
+    }
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Процедура DrawLabels}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Процедура      : DrawLabels                                            *
+*------------------------------------------------------------------------*
+* Назначение     : Отрисовка текстовых подписей под графиками поля       *
+* Входные        : hdc  - контекст устройства для рисования текста       *
+*                : dX, dW, dY, dH - геометрия выведенного графика        *
+*                : lblH - высота, выделенная под отрисовку текста        *
+* Выходные       : Нет                                                   *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Инициализирует шрифт Segoe UI Bold, настраивает прозрачный фон текста  *
+* и выводит симметричные подписи (для эквипотенциалей слева и для       *
+* силовых линий справа) под отмасштабированным изображением.            *
+*************************************************************************/
+void DrawLabels(HDC hdc, int dX, int dW, int dY, int dH, int lblH) {
+    bool isA = (g_ActiveView == 3);
+    wstring lL = isA ? L"Поле A: эквипотенциальные поверхности" 
+                     : L"Поле B: эквипотенциальные поверхности";
+    wstring lR = isA ? L"Поле A: силовые линии" : L"Поле B: силовые линии";
+    
+    HFONT hF = CreateFontW(
+        16, 0, 0, 0, FW_BOLD, 0, 0, 0, DEFAULT_CHARSET,
+        0, 0, CLEARTYPE_QUALITY, 0, L"Segoe UI"
+    );
+    HFONT hOldF = (HFONT)SelectObject(hdc, hF);
+    
+    int oldBk = SetBkMode(hdc, TRANSPARENT);
+    COLORREF oldCol = SetTextColor(hdc, RGB(50, 50, 50));
+    int lY = dY + dH + 5;
+    
+    RECT rL = { dX, lY, dX + dW / 2, lY + lblH };
+    RECT rR = { dX + dW / 2, lY, dX + dW, lY + lblH };
+    
+    DrawTextW(hdc, lL.c_str(), -1, &rL, DT_CENTER | DT_TOP | DT_SINGLELINE);
+    DrawTextW(hdc, lR.c_str(), -1, &rR, DT_CENTER | DT_TOP | DT_SINGLELINE);
+    
+    SetTextColor(hdc, oldCol);
+    SetBkMode(hdc, oldBk);
+    SelectObject(hdc, hOldF);
+    DeleteObject(hF);
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Процедура ShowError}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Процедура     : ShowError                                              *
+*------------------------------------------------------------------------*
+* Назначение    : Централизованный вывод сообщений об ошибках            *
+* Входные       : hWnd - окно, code - код ошибки                         *
+* Выходные      : Нет                                                    *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Отображает MessageBox с соответствующим заголовком и текстом ошибки    *
+* на основе переданного кода ошибки (enum).                              *
+*************************************************************************/
+void ShowError(HWND hWnd, ErrCode code) {
+    const wchar_t* m = L"Неизвестная ошибка"; const wchar_t* t = L"Ошибка";
+	UINT ic = MB_ICONERROR;
+    if (code == ErrParse) { m = L"Файл поврежден, пуст или имеет неверный формат!"; 
+        t = L"Ошибка парсинга"; }
+    else if (code == WarnNoData) { m = L"Сперва необходимо загрузить данные!"; 
+        t = L"Предупреждение"; ic = MB_ICONWARNING; }
+    else if (code == WarnNoCalc) { m = L"Сперва необходимо провести расчеты!"; 
+        t = L"Предупреждение"; ic = MB_ICONWARNING; }
+    else if (code == ErrWrite) { m = L"Ошибка записи файла!"; }
+    else if (code == ErrWlScript) { 
+       m = L"Не удалось создать файл скрипта (.wl)! Проверьте права."; 
+        t = L"Ошибка визуализации"; }
+    else if (code == ErrWlNotFound) { 
+       m = L"WolframScript не найден!\nПроверьте путь к wolframscript.exe."; 
+        t = L"Ошибка визуализации"; }
+    else if (code == ErrWlImage) { 
+       m = L"Изображение не создано!\nВозможно, скрипт завершился с ошибкой."; 
+        t = L"Ошибка визуализации"; }
+MessageBoxW(hWnd, m, t, ic | MB_OK);
+}
+\end{listing}
+\normalsize
+\pagebreak

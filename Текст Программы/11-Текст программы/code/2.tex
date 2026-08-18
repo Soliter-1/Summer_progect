@@ -1,0 +1,161 @@
+\section{Метод Polynomial::ToWString}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Метод         : Polynomial::ToWString                                  *
+*------------------------------------------------------------------------*
+* Назначение    : Форматирование полинома в строковое представление      *
+* Входные       : Нет                                                    *
+* Выходные      : wstring - строка широких символов (формат мономов)     *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Преобразует внутреннее представление полинома в строку вида            *
+* "ax^2 + by - cz^3" для вывода в графическом интерфейсе.                *
+* *
+* АЛГОРИТМ:                                                              *
+* 1. Если список "terms" пуст, возвращается строковый ноль ("0").         *
+* 2. Итеративно обходится каждый моном. Определяются знаки слагаемых.    *
+* 3. Форматируется вещественный коэффициент (std::setprecision(4)).      *
+* 4. Единичные коэффициенты (при наличии переменных) опускаются.         *
+* 5. Дописываются переменные x, y, z со степенями (если > 1).            *
+*************************************************************************/
+wstring Polynomial::ToWString() const {
+    if (terms.empty()) return L"0";
+    wstringstream ss; bool first = true;
+    for (const auto& term : terms) {
+        if (term.coef > 0 && !first) ss << L" + ";
+        if (term.coef < 0) ss << (first ? L"-" : L" - ");
+        double absCoef = abs(term.coef);
+        if (absCoef != 1.0 || (term.px == 0 && term.py == 0 && 
+            term.pz == 0)) ss << setprecision(4) << absCoef;   
+        if (term.px > 0) { ss << L"x"; if (term.px > 1) ss << L"^" << term.px; }
+        if (term.py > 0) { ss << L"y"; if (term.py > 1) ss << L"^" << term.py; }
+        if (term.pz > 0) { ss << L"z"; if (term.pz > 1) ss << L"^" << term.pz; }
+        first = false;
+    }
+    return ss.str();
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Функция FieldMathCalculations::ReplaceAll}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Функция       : FieldMathCalculations::ReplaceAll                      *
+*------------------------------------------------------------------------*
+* Назначение    : Глобальная замена всех вхождений подстроки в строке    *
+* Входные       : str - модифицируемая строка,                           *
+* from - искомая подстрока, to - заменяющая              *
+* Выходные      : Нет (модифицирует строку по ссылке)                    *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Осуществляет поиск и замену всех вхождений подстроки "from" на         *
+* значение "to" внутри строки "str".                                     *
+*************************************************************************/
+void FieldMathCalculations::ReplaceAll(wstring& str, 
+                                       const wstring& from, 
+                                       const wstring& to) {
+    if (from.empty()) return;
+    size_t start_pos = 0;
+    while ((start_pos = str.find(from, start_pos)) != wstring::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length();
+    }
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Функция FieldMathCalculations::ParsePoly}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Функция       : FieldMathCalculations::ParsePoly                       *
+*------------------------------------------------------------------------*
+* Назначение    : Синтаксический анализ строкового полинома              *
+* Входные       : expr - анализируемая строка формулы                    *
+* Выходные      : Объект Polynomial (структура мономов)                  *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Разбирает математическое выражение полинома от x, y, z.                *
+* *
+* АЛГОРИТМ:                                                              *
+* 1. Очистка строки от пробелов/скобок. Замена "-" на "+-".              *
+* 2. Разделение строки на токены по "+".                                 *
+* 3. Извлечение коэффициента и степеней переменных (x, y, z).            *
+*************************************************************************/
+Polynomial FieldMathCalculations::ParsePoly(wstring expr) {
+    Polynomial poly; wstring clean;
+    for (wchar_t c : expr) {
+        if (c == L' ' || c == L'(' || c == L')' || c == L'*') continue;
+        if (c == L'-') { clean += L"+-"; continue; } clean += c; }
+    wstringstream ss(clean); wstring token;
+    while (getline(ss, token, L'+')) {
+        if (token.empty()) continue;
+        Monomial m = { 1.0, 0, 0, 0 }; 
+        size_t i = (token[0] == L'-') ? 1 : 0;
+        wstring coef = (token[0] == L'-') ? L"-" : L"";
+        while (i < token.length() && (iswdigit(token[i]) || 
+               token[i] == L'.')) coef += token[i++]; 
+        m.coef = (coef == L"-" || coef.empty()) ? 
+                 ((coef == L"-") ? -1.0 : 1.0) : stod(coef);    
+        auto pV = [&](wchar_t v, int& p) { size_t pos = token.find(v); 
+            if (pos != wstring::npos) { p = 1; 
+                if (pos + 1 < token.length() && token[pos + 1] == L'^') 
+                    p = stoi(token.substr(pos + 2)); } 
+        };
+        pV(L'x', m.px); pV(L'y', m.py); pV(L'z', m.pz);
+        poly.terms.push_back(m);}
+    return poly;
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Функция FieldMathCalculations::ExtractComponents}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Функция       : FieldMathCalculations::ExtractComponents               *
+*------------------------------------------------------------------------*
+* Назначение    : Выделение координатных функций P, Q, R                 *
+* Входные       : line - строка формулы, P, Q, R - ссылки на полиномы    *
+* Выходные      : Нет                                                    *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Извлекает полиномы P, Q, R из строки векторного поля.                  *
+* 1. Нормализация LaTeX-символики.                                       *
+* 2. Разбор строки при наличии ортов (i, j, k) или через разделитель ";". *
+*************************************************************************/
+void FieldMathCalculations::ExtractComponents(wstring line, Polynomial& P, 
+                                              Polynomial& Q, Polynomial& R) {
+    ReplaceAll(line, L"\\overline{i}", L"i"); 
+    ReplaceAll(line, L"\\overline{j}", L"j");
+    ReplaceAll(line, L"\\overline{k}", L"k"); 
+    ReplaceAll(line, L"\\overline{a}=", L""); 
+    ReplaceAll(line, L"\\overline{b}=", L"");
+    size_t i_p = line.find(L"i"), j_p = line.find(L"j"), k_p = line.find(L"k");
+    if (i_p != wstring::npos && j_p != wstring::npos && k_p != wstring::npos) {
+        auto trimP = [](wstring s) { 
+            size_t i = 0; 
+            while (i < s.length() && (s[i] == L' ' || s[i] == L'+')) i++; 
+            return s.substr(i); };
+        P = ParsePoly(line.substr(0, i_p)); 
+        Q = ParsePoly(trimP(line.substr(i_p + 1, j_p - i_p - 1))); 
+        R = ParsePoly(trimP(line.substr(j_p + 1, k_p - j_p - 1)));}
+    else {
+        wstringstream ss(line); wstring item;
+        if (getline(ss, item, L';')) P = ParsePoly(item);
+        if (getline(ss, item, L';')) Q = ParsePoly(item);
+        if (getline(ss, item, L';')) R = ParsePoly(item);
+    }
+}
+\end{listing}
+\normalsize
+
+\pagebreak

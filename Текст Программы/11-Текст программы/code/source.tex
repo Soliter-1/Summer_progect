@@ -1,0 +1,315 @@
+\section{Файл заголовков Resource.h}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* КАФЕДРА № 304 | 2 КУРС | УЧЕБНАЯ ПРАКТИКА                             *
+*------------------------------------------------------------------------*
+* Project Name  : Программа расчета параметров векторных полей           *
+* (Теория поля)                                                          *
+* File Name     : Resource.h                                             *
+* Author(s)     : Варфоломеев К.В., Нагороднюк А.Д.,                     *
+*                 Великоцкая А.С.                                        *
+* Created       : 02/07/2026                                             *
+* Last Modified : 09/07/2026                                             *
+* Version       : 1.0                                                    *
+* Copyright     : (c) 2026. All rights reserved.                         *
+* License       : Educational use only                                   *
+*------------------------------------------------------------------------*
+* НАЗНАЧЕНИЕ ФАЙЛА:                                                      *
+* Содержит макроопределения идентификаторов графических ресурсов и       *
+* элементов управления пользовательского интерфейса Win32.               *
+*                                                                        *
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Файл Resource.h автоматически генерируется средой разработки           *
+* Microsoft Visual Studio и дополняется разработчиком для связывания     *
+* визуальных компонентов (кнопок, диалоговых окон, иконок) с их          *
+* числовыми идентификаторами в таблице ресурсов приложения.              *
+*                                                                        *
+* В ДАННОМ ФАЙЛЕ ОПРЕДЕЛЕНЫ:                                             *
+* 1. Системные идентификаторы приложения (IDS_APP_TITLE,                 *
+* IDR_MAINFRAME, IDI_VECTORFIELD, IDI_SMALL).                            *
+* 2. Идентификаторы диалоговых окон меню и подсистемы "О программе"      *
+* (IDD_VECTORFIELD_DIALOG, IDD_ABOUTBOX).                                *
+* 3. Уникальные идентификаторы управляющих кнопок на панели              *
+* инструментов, обеспечивающие обработку пользовательских событий        *
+* в оконной процедуре:                                                   *
+* - ID_BTN_IMPORT : Импорт данных из внешнего файла .txt                 *
+* - ID_BTN_SHOW   : Отображение матрицы полиномов                        *
+* - ID_BTN_CALC   : Запуск процедур математического анализа полей        *
+* - ID_BTN_EXPORT : Экспорт сформированного отчета на диск               *
+*************************************************************************/
+
+//{{NO_DEPENDENCIES}}
+// Включаемый файл, созданный в Microsoft Visual C++.
+// Используется VectorField.rc
+#define IDS_APP_TITLE           103
+#define IDR_MAINFRAME           128
+#define IDD_VECTORFIELD_DIALOG  102
+#define IDD_ABOUTBOX            103
+#define IDM_ABOUT               104
+#define IDM_EXIT                105
+#define IDI_VECTORFIELD         107
+#define IDI_SMALL               108
+#define IDC_VECTORFIELD         109
+#define IDC_MYICON              2
+#ifndef IDC_STATIC
+#define IDC_STATIC              -1
+#endif
+// Кнопки интерфейса
+#define ID_BTN_IMPORT           1001
+#define ID_BTN_SHOW             1002
+#define ID_BTN_CALC             1003
+#define ID_BTN_VIS_A            1004
+#define ID_BTN_VIS_B            1005
+#define ID_BTN_EXPORT           1006
+// Следующие стандартные значения для новых объектов
+#ifdef APSTUDIO_INVOKED
+#ifndef APSTUDIO_READONLY_SYMBOLS
+#define _APS_NO_MFC             130
+#define _APS_NEXT_RESOURCE_VALUE 129
+#define _APS_NEXT_COMMAND_VALUE 32771
+#define _APS_NEXT_CONTROL_VALUE 1007
+#define _APS_NEXT_SYMED_VALUE   110
+#endif
+#endif
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Файл заголовков VectorField.h}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* КАФЕДРА № 304 | 2 КУРС | УЧЕБНАЯ ПРАКТИКА                             *
+*------------------------------------------------------------------------*
+* Project Name  : Программа расчета параметров векторных полей           *
+* (Теория поля)                                                          *
+* File Name     : VectorField.h                                          *
+* Author(s)     : Варфоломеев К.В., Нагороднюк А.Д.,                     *
+*                 Великоцкая А.С.                                        *
+* Created       : 02/07/2026                                             *
+* Last Modified : 09/07/2026                                             *
+* Version       : 1.0                                                    *
+* Copyright     : (c) 2026. All rights reserved.                         *
+* License       : Educational use only                                   *
+*------------------------------------------------------------------------*
+* НАЗНАЧЕНИЕ ФАЙЛА:                                                      *
+* Содержит объявления базовых структур данных трехмерного пространства,  *
+* класса символьных полиномов и статических методов аналитического       *
+* ядра для вычислений в теории поля.                                     *
+*                                                                        *
+* ОПИСАНИЕ ИНТЕРФЕЙСОВ И ТИПОВ ДАННЫХ:                                   *
+* В заголовочном файле сосредоточены все типы данных, на которых         *
+* базируется вычислительная логика программы:                            *
+*                                                                        *
+* 1. Структура Vector3D:                                                 *
+* Описывает трехмерный геометрический вектор с вещественными             *
+* координатами (x, y, z).                                                *
+*                                                                        *
+* 2. Структура Monomial:                                                 *
+* Описывает структуру отдельного монома, содержащего вещественный        *
+* коэффициент "coef" и целочисленные степени трех пространственных       *
+* переменных (px, py, pz).                                               *
+*                                                                        *
+* 3. Класс Polynomial:                                                   *
+* Инкапсулирует логику символьной работы со многочленами (сложение,      *
+* зануление переменных при расчете потенциалов, символьное               *
+* интегрирование, численное вычисление значения в точке).                *
+*                                                                        *
+* 4. Класс FieldMathCalculations:                                        *
+* Математическое ядро программы, выполняющее синтаксический анализ       *
+* строковых формул, расчет дивергенции, ротора, потока (через теорему    *
+* Гаусса), циркуляции (через теорему Стокса), а также нахождение         *
+* потенциала векторного поля.                                            *
+*************************************************************************/
+#pragma once
+#include <string>
+#include <vector>
+#include <functional>
+#include "resource.h"
+using namespace std;
+// =======================================================================
+// ОБЪЯВЛЕНИЯ СТРУКТУР И КЛАССОВ
+// =======================================================================
+struct Vector3D {double x, y, z;}; struct Monomial {double coef; int px, py, pz;};
+class Polynomial {
+public:
+    vector<Monomial> terms; Polynomial(initializer_list<Monomial> init);
+    Polynomial(); Polynomial SetVariableToZero(bool zeroX, bool zeroY,
+    bool zeroZ) const;
+    Polynomial IntegrateSymbolically(int varIndex) const;
+    void Add(const Polynomial& other); wstring ToWString() const;
+    double Evaluate(double x, double y, double z) const;
+};
+class FieldMathCalculations {
+public: typedef function<double(double, double, double)> FUNC3D;
+    typedef function<Vector3D(double, double, double)> FUNC3D_VEC;
+    static Polynomial fieldA_X, fieldA_Y, fieldA_Z;
+    static Polynomial fieldB_X, fieldB_Y, fieldB_Z;
+    static void ParsePolynomials(const wstring& a_str, const wstring& b_str);
+    static Vector3D EvaluateFieldA(double x, double y, double z);
+    static Polynomial GetFieldBX(); static Polynomial GetFieldBY();
+    static Polynomial GetFieldBZ();
+    static Vector3D EvaluateFieldB(double x, double y, double z);
+    static double Calc_PartialDerivative(FUNC3D f, int variable, 
+                                       double x, double y, double z);
+    static double IntegrateQuarterDisk(function<double(double, double)> func, 
+                                       double radius = 1.0, int steps = 50);
+    static double Calc_Divergence(FUNC3D_VEC field, double x, double y, double z);
+    static Vector3D Calc_Rotor(FUNC3D_VEC field, double x, double y, double z);
+    static wstring DetermineFieldClass(FUNC3D_VEC field);
+    static double Calc_Flux_GaussOstrogradsky();
+    static double Calc_Flux_Direct(); static double Calc_Circulation_Stokes();
+    static double Calc_Circulation_Direct(); static Polynomial GetAnalyticalPotential();
+    static bool VerifyPotentialCorrectness(); static bool CheckRotorBZero();
+private: static Polynomial ParsePoly(wstring expr);
+    static void ExtractComponents(wstring line, Polynomial& P, 
+                                  Polynomial& Q, Polynomial& R);
+    static void ReplaceAll(wstring& str, const wstring& from, const wstring& to);
+};
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Метод Polynomial::SetVariableToZero}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* КАФЕДРА № 304 | 2 КУРС | УЧЕБНАЯ ПРАКТИКА                              *
+*------------------------------------------------------------------------*
+* Проект        : Программа расчета параметров векторных полей           *
+* Файл          : VectorField.cpp                                        *
+* Создан        : 02.07.2026                                             *
+*                                                                        *
+* РАСПРЕДЕЛЕНИЕ ОТВЕТСТВЕННОСТИ (ФУНКЦИОНАЛЬНЫЕ МОДУЛИ):                 *
+* - Великоцкая А.С. : Модули 1-20 (Математическое ядро)                  *
+* - Варфоломеев К.В. : Модули 20-35 (Вычисления и интерфейс)             *
+* - Нагороднюк А.Д. : Модули 35-49 (Интерфейс и визуализация)            *
+*------------------------------------------------------------------------*
+* НАЗНАЧЕНИЕ ФАЙЛА:                                                      *
+* Реализация логики работы системы: описание полей, алгоритмы анализа,   *
+* обработка данных и управление интерфейсом (WinAPI).                    *
+*************************************************************************/
+/*************************************************************************
+* Метод         : Polynomial::SetVariableToZero                          *
+*------------------------------------------------------------------------*
+* Назначение    : Символьное зануление переменных в полиноме             *
+* Входные       : zeroX, zeroY, zeroZ - флаги зануления осей x, y, z     *
+* Выходные      : Новый объект Polynomial с отфильтрованными мономами    *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Метод осуществляет символьное зануление выбранных переменных в         *
+* структуре полинома. Это необходимо для подготовки к аналитическому     *
+* интегрированию (потенциала поля). Метод фильтрует мономы, отбрасывая   *
+* те, у которых степени зануляемых переменных больше нуля.               *
+*************************************************************************/
+Polynomial Polynomial::SetVariableToZero(bool zeroX, bool zeroY, 
+                                         bool zeroZ) const {
+    Polynomial result;
+    for (const auto& term : terms) {
+        if ((zeroX && term.px > 0) || (zeroY && term.py > 0) || 
+            (zeroZ && term.pz > 0)) continue;
+        result.terms.push_back(term);
+    }
+    return result;
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Метод Polynomial::IntegrateSymbolically}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Метод         : Polynomial::IntegrateSymbolically                      *
+*------------------------------------------------------------------------*
+* Назначение    : Символьное интегрирование полинома по оси              *
+* Входные       : varIndex - индекс переменной (0 -> x, 1 -> y, 2 -> z)  *
+* Выходные      : Новый объект Polynomial (первообразная)                *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Выполняет аналитическое интегрирование полинома по выбранной оси.      *
+* Метод обходит каждый моном и применяет правило интегрирования для      *
+* степенной функции. Результат — новая первообразная функция,            *
+* используемая для точного расчета потенциала.                           *
+*************************************************************************/
+Polynomial Polynomial::IntegrateSymbolically(int varIndex) const {
+    Polynomial result;
+    for (const auto& term : terms) {
+        Monomial m = term;
+        if (varIndex == 0) { m.px += 1; m.coef /= (double)m.px; }
+        else if (varIndex == 1) { m.py += 1; m.coef /= (double)m.py; }
+        else if (varIndex == 2) { m.pz += 1; m.coef /= (double)m.pz; }
+        result.terms.push_back(m);
+    }
+    return result;
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Метод Polynomial::Add}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Метод         : Polynomial::Add                                        *
+*------------------------------------------------------------------------*
+* Назначение    : Алгебраическое сложение полиномов                      *
+* Входные       : other - ссылка на складываемый полином                 *
+* Выходные      : Нет (модифицирует текущий объект)                      *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Реализует сложение многочленов с приведением подобных членов.           *
+* Алгоритм: 1. Поиск подобных слагаемых по набору степеней (px, py, pz).  *
+* 2. Очистка от нулевых членов с коэффициентом < 1e-6 (микропогрешности). *
+*************************************************************************/
+void Polynomial::Add(const Polynomial& other) {
+    for (const auto& otherTerm : other.terms) {
+        bool found = false;
+        for (auto& myTerm : terms) {
+            if (myTerm.px == otherTerm.px && myTerm.py == otherTerm.py && 
+                myTerm.pz == otherTerm.pz) {
+                myTerm.coef += otherTerm.coef; found = true; break;
+            }
+        }
+        if (!found) terms.push_back(otherTerm);
+    }
+    terms.erase(remove_if(terms.begin(), terms.end(), 
+        [](const Monomial& m) { return abs(m.coef) < 1e-6; }), 
+        terms.end());
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Метод Polynomial::Evaluate}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Метод         : Polynomial::Evaluate                                   *
+*------------------------------------------------------------------------*
+* Назначение    : Нахождение численного значения полинома в точке        *
+* Входные       : x, y, z - координаты расчетной точки                   *
+* Выходные      : Вещественное число double - значение в точке           *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Производит численное вычисление значения многочлена в заданной точке   *
+* пространства. Математическая модель: вычисление суммы произведений     *
+* коэффициентов на переменные в степенях. Используется функция pow       *
+* из заголовочного файла <cmath>.                                        *
+*************************************************************************/
+double Polynomial::Evaluate(double x, double y, double z) const {
+    double sum = 0.0;
+    for (const auto& t : terms) 
+        sum += t.coef * pow(x, t.px) * pow(y, t.py) * pow(z, t.pz);
+    return sum;
+}
+\end{listing}
+\normalsize
+
+\pagebreak

@@ -1,0 +1,174 @@
+\section{Метод FieldMathCalculations::Calc\_Circulation\_Stokes}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Метод         : FieldMathCalculations::Calc_Circulation_Stokes         *
+*------------------------------------------------------------------------*
+* Назначение    : Расчет циркуляции векторного поля через теорему Стокса *
+* Входные       : Нет                                                    *
+* Выходные      : double - значение циркуляции                           *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Вычисляет циркуляцию поля по контуру, используя теорему Стокса (переход*
+* от криволинейного интеграла к интегралу от ротора по поверхности).     *
+* *
+* АЛГОРИТМ:                                                              *
+* 1. Интегрирование ротора поля по поверхности через IntegrateQuarterDisk. *
+* 2. Вычисление проекции вектора ротора на нормаль к поверхности.         *
+*************************************************************************/
+double FieldMathCalculations::Calc_Circulation_Stokes() {
+    return IntegrateQuarterDisk([](double x, double y) {
+        double z = sqrt(fmax(0.0, 1.0 - x * x - y * y));
+        if (z < 1e-5) return 0.0;
+        Vector3D rot = Calc_Rotor(EvaluateFieldA, x, y, z);
+        return (rot.x * x + rot.y * y + rot.z * z) / z;
+    });
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Метод FieldMathCalculations::Calc\_Circulation\_Direct}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Метод         : FieldMathCalculations::Calc_Circulation_Direct         *
+*------------------------------------------------------------------------*
+* Назначение    : Прямое вычисление циркуляции                          *
+* Входные       : Нет                                                    *
+* Выходные      : double - значение циркуляции                           *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Выполняет непосредственное интегрирование поля вдоль граничных         *
+* отрезков в первой октанте (три стороны контура).                       *
+* *
+* АЛГОРИТМ:                                                              *
+* 1. Параметризация трех сторон контура.                                 *
+* 2. Численное суммирование скалярного произведения поля на касательный  *
+* вектор (dl) с шагом dphi.                                              *
+*************************************************************************/
+double FieldMathCalculations::Calc_Circulation_Direct() {
+    int steps = 100; 
+    double dphi = (M_PI / 2.0) / steps, sum = 0.0;
+    for (int i = 0; i < steps; i++) {
+        double phi = (i + 0.5) * dphi;
+        Vector3D a1 = EvaluateFieldA(cos(phi), sin(phi), 0.0);
+        sum += (a1.x * (-sin(phi)) + a1.y * cos(phi));
+        Vector3D a2 = EvaluateFieldA(0.0, cos(phi), sin(phi));
+        sum += (a2.y * (-sin(phi)) + a2.z * cos(phi));
+        Vector3D a3 = EvaluateFieldA(sin(phi), 0.0, cos(phi));
+        sum += (a3.z * (-sin(phi)) + a3.x * cos(phi));
+    }
+    return sum * dphi;
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Метод FieldMathCalculations::GetAnalyticalPotential}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Метод         : FieldMathCalculations::GetAnalyticalPotential          *
+*------------------------------------------------------------------------*
+* Назначение    : Аналитическое нахождение потенциала поля B             *
+* Входные       : Нет                                                    *
+* Выходные      : Polynomial - результирующая функция потенциала         *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Вычисляет скалярный потенциал U(x,y,z), такой что grad(U) = B.         *
+* *
+* АЛГОРИТМ:                                                              *
+* 1. Интегрирование компонент (Bx по x, By по y, Bz по z).               *
+* 2. Использование метода SetVariableToZero для исключения перекрестных  *
+* членов, чтобы избежать дублирования данных при восстановлении.        *
+* 3. Алгебраическое сложение полученных функций (Add).                   *
+*************************************************************************/
+Polynomial FieldMathCalculations::GetAnalyticalPotential() {
+    Polynomial U1 = GetFieldBX().SetVariableToZero(false, true, true)
+                                .IntegrateSymbolically(0);
+    Polynomial U2 = GetFieldBY().SetVariableToZero(false, false, true)
+                                .IntegrateSymbolically(1);
+    Polynomial U3 = GetFieldBZ().SetVariableToZero(false, false, false)
+                                .IntegrateSymbolically(2);
+    Polynomial U; U.Add(U1); U.Add(U2); U.Add(U3);
+    return U;
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Метод FieldMathCalculations::VerifyPotentialCorrectness}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Метод         : FieldMathCalculations::VerifyPotentialCorrectness      *
+*------------------------------------------------------------------------*
+* Назначение    : Верификация точности найденного потенциала             *
+* Входные       : Нет                                                    *
+* Выходные      : bool - статус корректности                             *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Проверяет условие grad(U) = B в контрольных точках сетки.              *
+* *
+* АЛГОРИТМ:                                                              *
+* 1. В контрольных точках вычисляются частные производные от U.          *
+* 2. Сравнение градиента с вектором поля B. Если разница превышает       *
+* порог (0.05) в любой точке, возвращается false.                       *
+*************************************************************************/
+bool FieldMathCalculations::VerifyPotentialCorrectness() {
+    Polynomial U = GetAnalyticalPotential();
+    FUNC3D U_eval = [&](double px, double py, double pz) { 
+        return U.Evaluate(px, py, pz); 
+    };
+    for (double x = 0.2; x <= 0.8; x += 0.3) {
+        for (double y = 0.2; y <= 0.8; y += 0.3) {
+            double du_dx = Calc_PartialDerivative(U_eval, 1, x, y, 0.5);
+            double du_dy = Calc_PartialDerivative(U_eval, 2, x, y, 0.5);
+            Vector3D valB = EvaluateFieldB(x, y, 0.5);
+            if (abs(du_dx - valB.x) > 0.05 || abs(du_dy - valB.y) > 0.05) 
+                return false;
+        }
+    }
+    return true;
+}
+\end{listing}
+\normalsize
+
+\pagebreak
+
+\section{Метод FieldMathCalculations::CheckRotorBZero}
+\footnotesize
+\begin{listing}{1}
+/*************************************************************************
+* Метод         : FieldMathCalculations::CheckRotorBZero                 *
+*------------------------------------------------------------------------*
+* Назначение    : Проверка потенциальности поля B (rot B = 0)            *
+* Входные       : Нет                                                    *
+* Выходные      : bool - результат проверки                              *
+*------------------------------------------------------------------------*
+* ОПИСАНИЕ ФУНКЦИОНИРОВАНИЯ:                                             *
+* Численная проверка условия отсутствия вихрей в поле B.                 *
+* *
+* АЛГОРИТМ:                                                              *
+* 1. Сканирование области по сетке (x, y).                               *
+* 2. Вычисление ротора в каждой точке.                                   *
+* 3. Если модуль ротора превышает 1e-3, поле считается непотенциальным.  *
+*************************************************************************/
+bool FieldMathCalculations::CheckRotorBZero() {
+    for (double x = 0.2; x <= 0.8; x += 0.3) {
+        for (double y = 0.2; y <= 0.8; y += 0.3) {
+            Vector3D r = Calc_Rotor(EvaluateFieldB, x, y, 0.5);
+            if (abs(r.x) > 1e-3 || abs(r.y) > 1e-3 || abs(r.z) > 1e-3) 
+                return false;
+        }
+    }
+    return true;
+}
+\end{listing}
+\normalsize
+
+\pagebreak
